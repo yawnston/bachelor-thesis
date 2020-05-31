@@ -1,3 +1,42 @@
 \chapter*{Introduction}
 \addcontentsline{toc}{chapter}{Introduction}
 
+\section*{Foreword}
+\addcontentsline{toc}{section}{Foreword}
+
+In game theory, perfect information two-player games are often
+studied, and numerous algorithms have been designed with the purpose
+of playing them. This includes games like Chess and Go, which have had
+large breakthroughs in recent years \cite{Silver16}. However, real world
+situations do not always have perfect information, or only two parties involved.
+We could for example imagine multiple countries, which have only approximate
+information about the armies of their opponents. In this scenario, it could be
+useful to have tools to simulate potential enemy troop movements or placements.
+
+Even though algorithms which are able to model imperfect information and multiple
+players are often useful, they are not studied nearly as often. Designing such
+an~algorithm is not easy, and there are many pitfalls which make conventional
+game theory algorithms much less effecive at solving imperfect information and
+multi-player problems. This thesis therefore aims to analyze the problems
+of~implementing such algorithms, and to~implement some of them in~pursuit of~that goal.
+
+Naturally, some frameworks do already exist for the implementation of such games.
+However, at~the~time~of~writing, some~of~them only have AI support as~an~experimental
+and sparsely documented feature \cite{Boardgameio}, and others only focus
+on~specific fields of AI \cite{Openaigym}. This work aims to provide a~kind~of
+"plug-and-play" experience, where AI developers have minimal barriers between
+cloning a~git repository and having a~working AI.
+
+\section*{Goals}
+\addcontentsline{toc}{section}{Goals}
+
+The main goal of this thesis is to create a multi-player board game with
+imperfect information states. This game will be designed with AI (Artificial
+Intelligence) in mind, and it will provide a reasonable interface for
+the implementation of AI players.
+
+Another goal is the~implementation of several AI players for said game. This will
+allow us to not~only explore potential problems with implementing AIs for games
+of this kind. We will also verify that the~API (Aplication Programming Interface)
+provided by the game is sufficient for implementation of such AI players, and that
+the~API is reasonably easy to use.
