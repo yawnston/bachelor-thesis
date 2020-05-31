@@ -83,8 +83,10 @@
 % An optional dedication: you can thank whomever you wish (your supervisor,
 % consultant, a person who lent the software, etc.)
 \def\Dedication{%
-Most of all I want to thank my supervisor for his help and advice.
-I also thank all of my family and friends for being there for me along the way.
+Most of all I want to thank my supervisor for his help and advice, he was always
+there for me whenever I needed his opinion.
+I also thank all of my family and friends for being there for me along the way,
+my journey has been long and I could not have done it without them.
 }
 
 % Abstract (recommended length around 80-200 words; this is not a copy of your thesis assignment!)
@@ -125,8 +127,11 @@ to a board game with elements such as hidden information and multiple players.
 
 %%% Each chapter is kept in a separate file
 \include{preface}
-\include{chap01}
-\include{chap02}
+\include{relatedwork}
+\include{gamedesign}
+\include{framework}
+\include{algorithms}
+\include{experiment}
 
 \include{epilog}
 
@@ -158,7 +163,9 @@ to a board game with elements such as hidden information and multiple players.
 \appendix
 \chapter{Attachments}
 
-\section{First Attachment}
+\input{userdocs}
+\pagebreak
+\input{developerdocs}
 
 \openright
 \end{document}
