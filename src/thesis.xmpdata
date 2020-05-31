@@ -1,7 +1,16 @@
 % Metadata to be stored in PDF, see documentation of the pdfx package for more details.
 
-\Author{Name Surname}
-\Title{Thesis title}
-\Keywords{keywords\sep more such\sep yet another}
-\Subject{Abstract of thesis}
+\Author{Daniel Crha}
+\Title{Board game with artificial intelligence}
+\Keywords{board game\sep artificial intelligence}
+\Subject{Multiplayer board games with imperfect information present a difficult
+challenge for many common game-playing algorithms. Studying their behavior
+in such games can be difficult, because existing implementations of such
+games have poor support for artificial intelligence. This thesis aims to
+implement an imperfect information multiplayer board game in a way that provides
+a framework for developing and testing artificial intelligences for board games
+with the aforementioned qualities. Furthermore, this thesis explores the implementation
+of several algorithms for the game. This aims to showcase the artificial intelligence
+framework, as well as to analyze the performance of existing algorithms when applied
+to a board game with elements such as hidden information and multiple players.}
 \Publisher{Charles University}
