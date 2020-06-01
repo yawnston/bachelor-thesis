@@ -1,5 +1,135 @@
-\chapter{Framework}
+\chapter{AI Framework}
 
 \section{Design}
 
+Firstly, the choice of technologies used for creating \emph{Colonizers}
+warrants some explanation. The architecture of the application comprises of three layers:
+\begin{itemize}
+    \item \emph{Game Engine}. The game's backend is implemented in C\# and targets
+        .NET Core 3.1. The game logic itself is separated into a~library,
+        and this library is then hosted behind a~web API with ASP.NET Core.
+    \item \emph{UI Layer}. The UI for the application is a~single-page application
+        (SPA) made with Angular.
+    \item \emph{AI Scripts}. The AI scripts are implemented in Python 3.7. The project
+        contains a base class \texttt{AIBase} for other AIs. This base class provides
+        the AIs with the necessary API for communicating with the game engine.
+\end{itemize}
+
+The application is then hosted in Electron in order to run as a desktop application.
+This is facilitated by the C\# library Electron.NET, which allows the hosting
+of ASP.NET Core applications inside Electron. There are multiple reasons why
+we chose Electron instead of a more traditional GUI like WPF or WinForms,
+and instead of rendering graphics for the game ourselves:
+\begin{itemize}
+    \item Electron is cross-platform. The attentive reader has probably noticed that
+        all three of the aforementioned components are made with cross-platform
+        technologies, and this is very much by design. In principle, nothing
+        prevents \emph{Colonizers} from being cross-platform, which is advantageous
+        considering many AI researchers have Linux as their primary platform.
+        In practice however, \emph{Colonizers} only supports Windows due to
+        the way that communication between the game engine and AI scripts
+        is implemented. This communication channel could be easily replaced
+        with a cross-platform solution, in fact the classes which are responsible
+        for communication could easily be swapped out. The only reason why
+        this has not been done is simply prioritization --- the application has
+        other features which had a higher priority.
+    \item Electron provides easy ways of bundling and installing applications.
+        It has a convenient installer which makes installing the application
+        easy for end users.
+    \item Electron is a stable and tested technology, which is used by
+        many widely-used applications.
+    \item A turn-based board game lends itself well to being drawn in a web page
+        and being controlled by a SPA. If \emph{Colonizers} were an action game or
+        a real-time strategy game, this solution would no longer be viable.
+\end{itemize}
+
+C\# was chosen for the implementation of the game engine because it is a~language
+well-suited for writing backends. There are many solid libraries, and the language
+is fast thanks to a~well-optimized JIT (Just In Time) compiler. It would have
+been somewhat easier to implement the game's backend in Python, since the communication
+between the game engine and the AI scripts would have been trivial. However, C\# was chosen
+mostly because it is a statically-typed language, which offers protections against many
+types of bugs and errors by catching them at compile-time. When writing game logic,
+many errors are prevented simply by clever usage of types, as opposed to them
+coming out during runtime with Python.
+
+The choice of Python for AI scripts was an easy one, considering most machine learning
+is done with Python today. It is also a~rather easy language to learn and understand.
+
+Angular was chosen as the SPA framework because it is a~popular and robust solution.
+There are multiple such frameworks, notably React and Vue, which would have also
+made viable choices. However, Angular is simply the SPA framework the author
+is the most familiar with.
+
+Another design consideration is the design of the API used to communicate between
+the game engine and AI scripts. The chosen API is subclassing --- a~new AI
+must simply subclass a provided base class (\texttt{AIBase}), and implement
+an abstract method. The AI script is then started in a~separate process
+by the game engine, and the implemented method is called when the game engine
+requires the AI to make a~move. The AI then chooses a~move, and returns an~identifier
+corresponding to the chosen move. This API is simple and easy to understand,
+as well as easy to implement.
+
 \section{Interface}
+
+TODO: how to add new intelligence - add to folder or file picker?
+
+The API for communication consists of the AI subclassing the \texttt{AIBase} class,
+and implementing the \texttt{messageCallback(self, gameState)} abstract method. This method
+is invoked by the game engine when it requires a~move to be chosen by the AI. The
+\texttt{gameState} parameter contains a dictionary representing the current game state,
+as well as a~list of available actions in this state.
+
+The AI base class also contains various utilities for AI scripts to use. The most
+important of these utilities is the \texttt{simulate(self, boardState, move)} method.
+This method will simulate the given move via the game engine, and return the new game state.
+This allows AIs to simulate playouts without having to implement them internally.
+Another useful method is \texttt{determinize(self)}, which returns a~determinized
+version of the current game state. This determinization is performed by the game
+engine. The AI also does not need to track information sets, since the game engine
+does this internally. This means that for example if the AI is playing second and
+choosing a~colonist, the game engine will automatically track the information the AI
+has about the previous player's colonist (one of two possible colonists).
+Other utility methods included simplify working with the game state dictionary by
+providing methods for commonly performed operations.
+
+\clearpage
+\autoref{framework:randomai} shows the implementation of an~AI for \emph{Colonizers}.
+This AI simply chooses random moves.
+
+\begin{figure}[h!]
+\begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+from AICore import *
+
+import sys
+from random import seed, randint
+
+class RandomAI(AIBase):
+    def \_\_init\_\_(self):
+        super().\_\_init\_\_()
+
+    def messageCallback(self, gameState):
+        # important to return string, not number
+        return str(self.pickRandomAction(gameState))
+
+    def pickRandomAction(self, gameState):
+        actionCount = len(gameState["Actions"])
+        return randint(0, actionCount - 1)
+
+if \_\_name\_\_ == "\_\_main\_\_":
+    if len(sys.argv) != 2:
+        # AI Script must have 1 argument - name of named pipe
+        raise Exception('Invalid arguments')
+    seed(42) # Seed AI for reproducibility
+    ai = RandomAI()
+    ai.run(sys.argv[1])
+\end{code}
+\caption{Random AI implementation.}\label{framework:randomai}
+\end{figure}
+
+As seen in \autoref{framework:randomai}, creating a new AI is very simple.
+About half of the shown code is boilerplate code, and the actual AI
+class is very simple.
+
+Note that the game engine invokes the AI script via command line, which
+means that the AI must contain the \texttt{\_\_main\_\_} boilerplate code.
