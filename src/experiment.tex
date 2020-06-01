@@ -62,7 +62,66 @@ The random seeds used by application components during the experiment were as fo
 
 \subsection{Findings}
 
-TODO
+\subsubsection{Experiment 1}
+
+First off, let us focus on the experiment runs with \texttt{RandomIntelligence}.
+Results of the 1000 runs can seen in table \ref{tabex:randomwins}.
+
+\begin{table}[h!]
+
+\centering
+%%% Tabulka používá následující balíčky:
+%%%   - booktabs (\toprule, \midrule, \bottomrule)
+%%%   - dcolumn (typ sloupce D: vycentrovaná čísla zarovnaná na
+%%%     desetinnou čárku
+%%%     Všimněte si, že ve zdrojovém kódu jsou desetinné tečky, ale
+%%%     tisknou se čárky.
+%%% Dále používáme příkazy \pulrad a \mc definované v makra.tex
+
+\begin{tabular}{l@{\hspace{1.5cm}} c c c c}
+\textbf{Position} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} \\
+\midrule
+Wins            & 310 & 213   & 251   & 226 \\
+Losses          & 197 & 261   & 279   & 263 \\
+Average rank    & 2.3 & 2.572 & 2.553 & 2.575 \\
+\bottomrule
+\end{tabular}
+
+\caption{Results of \texttt{RandomIntelligence} play.}\label{tabex:randomwins}
+
+\end{table}
+
+The most notable result we have is the fact that AIs in the first position
+seem to be winning the most often. AIs in the first position also lose (place fourth)
+less, and they have a better average ranking overall.
+
+We can try to verify the significance of these results mathematically.
+If we assume that the rank at the end of the game follows a normal distribution,
+we can compute a confidence interval. Let $\bar x$ be the sample mean, let
+$s$ be the sample standard deviation and let $n$ be the sample size.
+We are looking for a confidence interval for the unknown mean $\mu$.
+The~$100(1-\alpha)\%$ confidence interval for $\mu$ is
+$$\hat \mu_L =\bar x - z_{\alpha/2} \cdot s/\sqrt{n},\;
+\hat \mu_U=\bar x + z_{\alpha/2} \cdot s/\sqrt{n},$$
+
+The sample mean for rank among first position AIs is $2.3$ as seen in
+table \ref{tabex:randomwins}, and the sample standard deviation is
+$1.1069$. If we want a $95\%$ confidence interval, we will use
+$z_{\alpha/2} = 1.96$. This gives us the confidence interval of
+$$\hat \mu_L = 2.2314,\;\hat \mu_U = 2.3686$$
+
+We can also compute a $95\%$ confidence interval for the mean rank of AIs in position 3:
+$$\hat \mu_L = 2.4821,\;\hat \mu_U = 2.6239$$
+
+These intervals do not overlap, therefore we can conclude that there is a statistically
+significant difference between the rank means among AIs at different positions. This may
+indicate a potential balance issue in the rules of the game, with the first position
+being more powerful than the other ones, which are similar in power. However,
+measurement on randomly choosing AIs does not necessarily indicate imbalance, since
+random agents do not play optimal strategies. Therefore we cannot conclude anything
+about game balance just yet, but this statistical difference is worth keeping in mind.
+
+\subsubsection{Experiment 2}
 
 \section{Algorithm Comparison Experiments}
 
