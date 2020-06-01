@@ -66,7 +66,8 @@ Note that the chosen seeds do not have any special meaning.
 \subsubsection{Experiment 1}
 
 First off, let us focus on the experiment runs with \texttt{RandomIntelligence}.
-Results of the 1000 runs can seen in table \ref{tabex:randomwins}.
+Results of the 1000 runs can seen in table \ref{tabex:randomwins} Note that
+by "Losses" we mean fourth-place finishes, not failing to finish first.
 
 \begin{table}[h!]
 \centering
@@ -86,27 +87,20 @@ seem to be winning the most often. AIs in the first position also lose (place fo
 less, and they have a better average ranking overall.
 
 We can try to verify the significance of these results mathematically.
-If we assume that the rank at the end of the game follows a normal distribution,
-we can compute a confidence interval. Let $\bar x$ be the sample mean, let
-$s$ be the sample standard deviation and let $n$ be the sample size.
-We are looking for a confidence interval for the unknown mean $\mu$.
-The~$100(1-\alpha)\%$ confidence interval for $\mu$ is
-$$\hat \mu_L =\bar x - z_{\alpha/2} \cdot s/\sqrt{n},\;
-\hat \mu_U=\bar x + z_{\alpha/2} \cdot s/\sqrt{n},$$
+We will employ the $\chi^{2}$ test to check whether the number of wins for
+position 1 follows the binomial distribuiton $B(1,0.25)$. The null hypothesis
+in this case is that the win rate follows the aforementioned binomial distribution.
+With 1000 trials, we would expect 250 of them to succeed and 750 of them to fail.
+We can compute $\chi^{2}$ as follows
+$$\chi^{2} = \frac{(310 - 250)^{2}}{250} + \frac{(690 - 750)^{2}}{750} \approx 19.2$$
+This gives us the distribution $\chi^{2}(1)$ with 1 degree of freedom. Our
+$\chi^{2}$ test statistic is $19.2$, which gives us a $p$-value of 0.00001.
+Therefore we can reject the null hypothesis with a statistical significance
+of 0.00001.
 
-The sample mean for rank among first position AIs is $2.3$ as seen in
-table \ref{tabex:randomwins}, and the sample standard deviation is
-$1.1069$. If we want a $95\%$ confidence interval, we will use
-$z_{\alpha/2} = 1.96$. This gives us the confidence interval of
-$$\hat \mu_L = 2.2314,\;\hat \mu_U = 2.3686$$
-
-We can also compute a $95\%$ confidence interval for the mean rank of AIs in position 3:
-$$\hat \mu_L = 2.4821,\;\hat \mu_U = 2.6239$$
-
-These intervals do not overlap, therefore we can conclude that there is a statistically
-significant difference between the rank means among AIs at different positions. This may
+This may
 indicate a potential balance issue in the rules of the game, with the first position
-being more powerful than the other ones, which are similar in power. However,
+being more powerful than the other ones, which appear to be similar in power. However,
 measurement on randomly choosing AIs does not necessarily indicate imbalance, since
 random agents do not play optimal strategies. Therefore we cannot conclude anything
 about game balance just yet, but this statistical difference is worth keeping in mind.
@@ -117,7 +111,8 @@ The other experiment in this section is very similar to the first one, except
 we have four instances of \texttt{HeuristicIntelligence} instead of
 four instances of \texttt{RandomIntelligence}
 playing against each other. Results of the 1000 runs can seen
-in table \ref{tabex:heuristicwins}.
+in table \ref{tabex:heuristicwins}. Note that
+by "Losses" we mean fourth-place finishes, not failing to finish first.
 
 \begin{table}[h!]
 \centering
@@ -136,14 +131,32 @@ If we compare these results to those in table \ref{tabex:randomwins}, we can see
 almost exactly the opposite results. With random AIs playing, we saw that the AI
 in the first position had a statistically significant advantage. With heuristically
 driven AIs, it is obvious on first glance that earlier positions are less powerful
-and later positions are more powerful. We can verify this statistically by computing
-confidence intervals for the first and fourth ranks. The $99\%$ confidence interval
-for the first position is
-$$\hat \mu_L = 2.7019,\;\hat \mu_U = 2.8981$$
-while the $99\%$ confidence interval for the fourth position is
-$$\hat \mu_L = 2.1458,\;\hat \mu_U = 2.3102$$
-The intervals do not overlap, therefore we can conclude that there is a statistically
-significant difference between the means of these positions' respective average ranks.
+and later positions are more powerful. We can verify this statistically by performing
+the $\chi^{2}$ test on the number of wins and losses for positions 1 and 4, similarly
+to Experiment 1.
+
+We can start with wins for position 1
+$$\chi^{2} = \frac{(230 - 250)^{2}}{250} + \frac{(770 - 750)^{2}}{750} \approx 2.14$$
+This gives us a~$p$-value of 0.14350, therefore we cannot comfortably
+\footnote{In the context of these experiments, comfortable rejection means rejection
+with a~$p$-value of at most 0.05.}
+reject the null hypothesis that the number of wins for the first position
+follows the distribution $B(1,0.25)$.
+
+If we move on to wins for position 4, we proceed as follows
+$$\chi^{2} = \frac{(230 - 250)^{2}}{250} + \frac{(770 - 750)^{2}}{750} \approx 6.912$$
+This gives us a $p$-value of 0.00856, therefore we can reject the null hypothesis
+with a~statistical significance of 0.00856.
+
+We can also analyze the loss statistics, starting with position 1
+$$\chi^{2} = \frac{(415 - 250)^{2}}{250} + \frac{(585 - 750)^{2}}{750} \approx 145.2$$
+This gives us a $p$-value of nearly 0, therefore we can reject the null hypothesis
+with an unbelievabely small statistical significance.
+
+For losses at position 4, we have
+$$\chi^{2} = \frac{(135 - 250)^{2}}{250} + \frac{(865 - 750)^{2}}{750} \approx 70.54$$
+This also gives us a $p$-value of nearly 0, therefore we can again reject the null hypothesis
+with an unbelievabely small statistical significance.
 
 While the differences between wins per position are notable, the most interesting
 are the loss statistics. It would appear that the earlier ranks (particularly the first one)
@@ -228,12 +241,129 @@ Note that the chosen seeds do not have any special meaning.
         random number generator seeded with 42.
 \end{itemize}
 
+\clearpage
 \subsection{Findings}
-
-WORK IN PROGRESS
 
 \subsubsection{Experiment 3}
 
+In Experiment 3, we had one of each type of AI play against each other in 50 games.
+Results of the 50 runs can seen in table \ref{tabex:oneofeach} Note that
+by "Losses" we mean fourth-place finishes, not failing to finish first.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l@{\hspace{1.5cm}} c c c c}
+\textbf{AI} & \textbf{Random} & \textbf{Heuristic} & \textbf{MaxN} & \textbf{ISMCTS} \\
+\midrule
+Wins            & 0   & 5     & 8     & 37 \\
+Losses          & 40  & 1     & 9     & 0 \\
+Average rank    & 3.8 & 2.38  & 2.54  & 1.28 \\
+\bottomrule
+\end{tabular}
+\caption{Results with one of each AI.}\label{tabex:oneofeach}
+\end{table}
+
+We can immediately see that there is no point in statistically checking whether
+all AIs are equally good, since the results are so extreme. ISMCTS is the clear
+winner, having won the majority of games and not having lost a single one.
+An interesting data point is of the 13 instances where ISMCTS didn't win, it
+places second 12 times and third 1 time.
+The more interesting part is the comparison of the heuristic AI with MaxN.
+It would appear that the heuristic AI is much less likely to lose than MaxN.
+This makes sense, considering that the heuristic AI is a collection of rules
+designed to always move the AI towards gaining score, even if it is not optimal.
+
+We can take a look at position-based data in order to gain insight into which AIs
+are strong in which positions. \autoref{tabex:oneofeachpos} shows positions where
+the AIs scored their wins.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l@{\hspace{1.5cm}} c c c c}
+\textbf{AI} & \textbf{Random} & \textbf{Heuristic} & \textbf{MaxN} & \textbf{ISMCTS} \\
+\midrule
+Position 1    & 0   & 2     & 5     & 11 \\
+Position 2    & 0   & 1     & 2     & 6 \\
+Position 3    & 0   & 2     & 1     & 9 \\
+Position 4    & 0   & 0     & 0     & 11 \\
+\bottomrule
+\end{tabular}
+\caption{Positions of wins in Experiment 3.}\label{tabex:oneofeachpos}
+\end{table}
+
+We can try to check whether AIs are similarly likely to win in any position.
+We will not perform the statistical test on the results for the geuristic or MaxN
+AIs, since the sample size for wins is too small. We can, however, perform the $\chi^{2}$
+test for ISMCTS wins by position.
+As the null hypothesis, we will assume that the AIs are equally likely to win in
+any position. We can check the hypothesis that the win distribution for ISMCTS
+between positions follows the distribution $B(1,0.25)$. ISMCTS won 37 times in total,
+giving us an expected 9.25 wins per position.
+$$\chi^{2} = \frac{(6 - 9.25)^{2}}{9.25} + \frac{(31 - 27.75)^{2}}{27.75} \approx 1.52$$
+This gives us a $p$-value of 0.21762, therefore we cannot comfortably reject the null
+hypothesis. This means that we cannot reject the hypothesis that ISMCTS is equally likely
+to win in any position.
+
 \subsubsection{Experiment 4}
 
+In Experiment 4, we had two instances of \texttt{HeuristicIntelligence} and two
+instances of \texttt{MaxnIntelligence} play against each other in 50 games.
+Results of the 50 runs can seen in table \ref{tabex:heurmaxn} Note that
+by "Losses" we mean fourth-place finishes, not failing to finish first.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l@{\hspace{1.5cm}} c c c c}
+\textbf{AI} & \textbf{Heuristic} & \textbf{MaxN} \\
+\midrule
+Wins            & 35   & 15   \\
+Losses          & 10   & 40   \\
+Average rank    & 2.13 & 2.87 \\
+\bottomrule
+\end{tabular}
+\caption{Results with heuristic AI versus MaxN.}\label{tabex:heurmaxn}
+\end{table}
+
+We can use the $\chi^{2}$ test to check whether there is a statistical difference
+between these AIs' likelihoods to win. We will assume that the heuristic AI's
+wins follow a binomial distribution $B(1,0.5)$.
+$$\chi^{2} = \frac{(35 - 25)^{2}}{25} + \frac{(15 - 25)^{2}}{25} = 8$$
+This gives us a $p$-value of 0.00468. This is comfortably below our target
+$p$-value of 0.05, therefore we can reject the null hypothesis with a~statistical
+significance of 0.00468. We have therefore established that in this scenario,
+the heuristic AI performs better than MaxN with statistical significance.
+
+Since we earlier hypothesized that MaxN would be more likely to win in later
+positions, we can also look at positional results as shown in \autoref{tabex:heurmaxnpos}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l@{\hspace{1.5cm}} c c c c}
+\textbf{AI} & \textbf{Heuristic} & \textbf{MaxN} \\
+\midrule
+Position 1    & 13   & 13 \\
+Position 2    & 15   & 2  \\
+Position 3    & 4    & 0  \\
+Position 4    & 2    & 0  \\
+\bottomrule
+\end{tabular}
+\caption{Positions of wins in Experiment 4.}\label{tabex:heurmaxnpos}
+\end{table}
+
+The results here are interesting in multiple ways. The first is the fact that our earlier
+hypothesis that MaxN would be strong at playing later positions was completely wrong,
+with MaxN not achieving a single win in positions 3 or 4.
+
+The other way these results are interesting is the fact that in position 1,
+both AIs had the same likelihood of winning, even though MaxN is obviously statistically
+inferior to its heuristic counterpart. We do see a similar trend to the results
+of Experiment 3, where most wins seem to happen at earlier positions.
+This could potentially indicate the existence of overpowered strategies available
+only to players in early positions.
+
+In summary, results for Experiment 4 were rather surprising, considering we rejected
+both of our prior hypotheses based on the experiment results.
+
 \subsubsection{Experiment 5}
+
+WORK IN PROGRESS
