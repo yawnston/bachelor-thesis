@@ -6,10 +6,94 @@ taken when creating them.
 
 \section{Random Decisions}
 
+The random decision algorithm is rather primitive --- when it is presented with
+a~choice of actions, it simply picks a random one. It is meant to be
+the bottom baseline for other algorithms,
+as well as being a proof-of-concept. \autoref{algo:random} shows the AI class which
+implements this logic.
 
+\begin{figure}[h!]
+\begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+class RandomAI(AIBase):
+    def \_\_init\_\_(self):
+        super().\_\_init\_\_()
+
+    def messageCallback(self, gameState):
+        # important to return string, not number
+        return str(self.pickRandomAction(gameState))
+
+    def pickRandomAction(self, gameState):
+        actionCount = len(gameState["Actions"])
+        return randint(0, actionCount - 1)
+\end{code}
+\caption{Random choice algorithm.}\label{algo:random}
+\end{figure}
+
+An interesting property of this AI is the fact that if four of them play
+against each other, it is possible for the game to never end, since
+the random decision making does not have to converge towards an~end state.
+This situation is extremely unlikely however.
 
 \section{Heuristics}
 
+The heuristic AI is intended to be the real baseline for other implemented AI algorithms.
+It comprises of a number of rules which determine the action to perform in a given
+game state. If no rules are applicable to a given state, the AI simply
+falls back to random choice. \autoref{algo:heur} shows high-level pseudocode for
+the implemented heuristic AI.
+
+\begin{figure}[h!]
+\begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+if game phase is "ColonistPick":
+    if player has at least 3 modules of the same color in their colony:
+        pick color synergy colonist if available
+    if player has 0-1 modules in hand:
+        pick Visionary if available
+    pick randomly
+else if game phase is "Draw":
+    if player has 0 Omnium or at least 4 modules in hand:
+        acquire Omnium
+    if player has 0 modules in hand:
+        draw modules
+    pick randomly
+else if game phase is "Discard":
+    if any player has 7 or 8 modules in their colony:
+        keep the highest value module the player can afford
+    if the player has 5+ modules in their colony:
+        keep the module with the highest difference of $value - cost$
+        that the player can afford
+    keep the module with the most color synergy with the player's
+    colony if possible
+
+    pick randomly
+else if game phase is "Power":
+    if player's colonist is Opportunist:
+        choose the most valuable player to steal from,
+        where value is calculated as
+        $Omnium - number of possible colonists for that player + 1$
+        randomly choose a colonist this player could have,
+        then steal from this colonist
+    if player's colonist is Spy:
+        find player with more cards than the current player
+        and with sufficient information about their colonist
+        if this player exists:
+            swap hands with them
+        else:
+            do nothing
+    pick randomly
+else if game phase is "Build":
+    if any player has 7 or 8 modules in their colony:
+        build the module with the highest possible value
+    if the current player has 5+ modules:
+        build the module with the highest difference of $value - cost$
+    build the module with the most color synergies if possible
+
+    build randomly
+\end{code}
+\caption{Heuristic algorithm pseudocode.}\label{algo:heur}
+\end{figure}
+
+\clearpage
 \section{MaxN}
 \label{sec:algomaxn}
 
