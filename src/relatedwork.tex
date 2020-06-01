@@ -1,6 +1,92 @@
 \chapter{Related Work}
 
+Before we discuss the design of \emph{Colonizers} and its implmentation,
+let us first make an overview of existing related work. We are interested mainly
+in two areas here:
+\begin{itemize}
+    \item Implementation of similar games, and frameworks facilitating that
+    \item Algorithms adapted for multi-player games and algorithms adapted
+        for imperfect information games
+\end{itemize}
+
 \section{Games and Frameworks}
+
+\subsection{OpenAI Gym}
+
+OpenAI Gym is "a toolkit for developing and comparing reinforcement learning algorithms"
+\cite{Openaigym}. It is a popular tool in the reinforcement learning field,
+because it is modular, and easy to work with. It features a standardized API for
+all of its environments (games or problems). This means that agents built for one
+environment can be easily transitioned to other environments, without having to
+structurally rebuild it. Another benefit is~the fact that it~is easy to create
+new environments, and these newly created environments can be used by anyone,
+since the API is standardized.
+
+The following is an example (as presented in the OpenAI Gym documentation
+\cite{Openaigym}) of a Python program which solves one of the simpler environments
+available out-of-the-box in OpenAI Gym:
+
+\begin{code}
+import gym
+env = gym.make('CartPole-v0')
+for i_episode in range(20):
+    observation = env.reset()
+    for t in range(100):
+        env.render()
+        print(observation)
+        action = env.action_space.sample()
+        observation, reward, done, info = env.step(action)
+        if done:
+            print("Episode finished after {} timesteps".format(t+1))
+            break
+env.close()
+\end{code}
+
+The~environment being solved (\emph{CartPole-v0}) is a~task where the~AI must balance a~pole
+by moving the~cart below it left and right. The agent only performs random moves,
+but the~example clearly illustrates how the~agent interacts with the~environment.
+
+OpenAI Gym is not particularly suitable for the study of multi-player games with imperfect
+information for a~few reasons:
+\begin{itemize}
+    \item It only supports reinforcement learning agents. The API is designed with this
+        in mind, and does not provide support for any other machine learning methods.
+    \item It does not provide any tools for determinization
+        \footnote{By determinization
+        of a game state, we understand the conversion of a game state with hidden
+        information into a game state with perfect information. Determinization
+        takes into account the information set of the given player. For example, we can
+        imagine a~poker player who has been dealt a hand which includes the Queen
+        of Hearts. When this player is thinking about what other players may have,
+        the Queen of Hearts is out of the question, since the player has it, and there
+        is only one in the deck. Therefore, a rational determinization of a poker
+        game state would be to take all cards which started in the deck, remove
+        the ones the player is holding, and then randomly assign other cards to the
+        other players.} 
+        of imperfect information states. This would force AIs
+        to track their own information sets, and to then produce determinizations
+        of game states on their own.
+\end{itemize}
+
+In spite of that, there is something we can take away from OpenAI Gym when designing
+\emph{Colonizers}. Notably, the API is very elegant, and creating an~AI which simply
+plays random moves is a matter of very few lines of code. We will try to achieve
+this with \emph{Colonizers}.
+
+\subsection{boardgame.io}
+
+boardgame.io \cite{Boardgameio} is a game engine for creating turn-based games.
+It features many helpful features for creating board games, such as support for
+multiplayer, randomness, imperfect information, and a few other useful features.
+
+Using boardgame.io for the implementation of \emph{Colonizers} would make many things
+much simpler, notably the implementation of game logic would be trivial.
+However, it is also not suitable for the purposes of this thesis, because the AI
+support is poor. The engine does feature a degree of AI support, but the API
+is limited to using pre-existing AIs which ship with the game (an~MCTS AI and
+a~random AI). The API only provides a~method for us to list the legal moves in
+a~given game state --- it does not however provide ways to implement a~fully
+custom AI.
 
 \section{Algorithms}
 
