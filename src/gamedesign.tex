@@ -1,2 +1,183 @@
 \chapter{Game Design}
 \label{chap:gamedesign}
+
+This chapter's purpose is to discuss the considerations which went into designing
+the~game's rules, and to describe said rules in detail.
+
+The game is set on Mars with futuristic themes. In the game universe, Mars
+is only just starting to be settled by humans, and there was a precious mineral
+found under the surface - Omnium. This triggered a rush of colonists, who are
+eager to make some profit. In the game, they compete for resources, and they all
+want to build the largest colony, because the person with the largest colony
+can extract the most Omnium and get rich.
+
+\section{High Level Design}
+
+\emph{Colonizers} has a few design decisions which are inherently set in stone by the premise
+of this thesis:
+\begin{itemize}
+    \item The game must have more than two players
+    \item The game must feature hidden information
+    \item The game must support AI
+\end{itemize}
+
+AI support is only tangentially related to the design of the game rules, therefore
+we will not discuss it at length in this chapter. We will focus on the other two
+requirements.
+
+\emph{Colonizers} is a four-player game. Four was chosen as a sweet spot for complexity,
+since with five players, the game would start to get prohibitively expensive to compute.
+It could be argued that three would accomplish the same goal, but four makes more sense
+with respect to having enough design space. Four players is also a very common
+player count for board games.
+
+Hidden information is somewhat more tricky to get right. It can be implemented in many
+ways, but even the simplest inclusions make the game much more tricky to process
+with AI. There are two elements of hidden information in \emph{Colonizers}:
+\begin{itemize}
+    \item Players' hands and the Deck
+    \item Players' colonists
+\end{itemize}
+These elements will be explained in more detail in the following section. It is worth
+noting however that it is possible to make information-gathering plays, even though
+only in very limited ways and in rare circumstances. Information-gathering plays
+are not a large design focus of \emph{Colonizers}.
+
+The game also features interaction between players --- both malicious and cooperative.
+This naturally means that it is possible for multiple players to cooperate in order
+to gain an advantage, or to conspire against another player in order to damage
+that player's chances of winning. Many traditional AI algorithms are not capable
+of cooperation or conspiration, which provides room for specialized AIs to shine.
+
+\section{Game Rules}
+
+The game is played in rounds, which comprise of turns. Turns then comprise of phases.
+The four players start the game in a given order, and they always take turns
+in this order for the entire game.
+
+Each player has a colony where they can build modules (the game's terminology for buildings).
+Each module has a value, and the goal of the game is to build the most valuable colony.
+When any player builds eight modules in their colony, the game ends at the end
+of that round. When the game ends, the values of all modules in each player's colony
+are added up, and the resulting value is that player's final score. Players can also
+get a bonus to their score if they reached eight buildings in their colony before
+the game ended --- the first player to build eight modules gets four bonus points,
+and other players to build eight modules get two bonus points each.
+The final ranking of the players when the game ends is determined by points --- players
+with more points rank higher. If multiple players are tied in points, the player whose
+position according to the player order is earlier ranks higher.
+More information about modules and ways to interact with them follow in subsequent subsections.
+
+There is also a rare game end condition, which is triggered by players attempting to
+draw from an empty deck. This immediately ends the game with a draw, giving all
+players zero points and a rank of zero.
+
+\subsection{Colonist Pick}
+
+At the start of each round, players take turns picking colonists. A colonist is~a~character
+with special powers, and the player controls a given colonist for one turn. A player's
+colonist is hidden from the other players.
+There are six colonists in the game (see \autoref{gamedesign:colonists} for a~list
+of available colonists). At the start of the colonist picks, a random colonist is
+secretly removed for play for the rest of the round. Then, players take turns
+picking from the remaining colonists one by one. This means that after the last
+player picks, there is one colonist left over. This colonist is then removed from
+play for the rest of the round.
+
+The colonist pick phase creates a situation where players have asymmetrical information.
+For example, the first player knows which colonist was removed at the start, but has
+no information about the other players apart from knowing the four colonist he is passing
+on. In contrast, the last player has relatively little information about the players
+before them, but they know which colonist is removed from play after being left over.
+
+\pagebreak
+\subsection{Proper Turns}
+
+After each player has chosen a colonist, the players take their actual turns, in order
+of first to last. Each player acts in all phases of their turn before passing the turn
+to the next player.
+
+Each turn is comprised of the following phases:
+\begin{itemize}
+    \item \emph{Draw Phase}. The player may choose between acquiring two Omnium
+        (the game's currency) and drawing 2 modules from the deck. The player
+        must then keep one of the modules, and place the other at the bottom of the deck.
+        The drawing action is not available if the player's hand is full (five modules).
+        The player's colonist is also revealed to other players during this phase.
+    \item \emph{Power Phase}. The player may choose to use their colonist's active
+        ability if the colonist has one.
+    \item \emph{Build Phase}. The player may choose to build one module from their hand.
+        To build a module, the player must spend the Omnium amount required by the module's
+        build cost. Building the module adds it to the player's colony and removes
+        it from their hand.
+\end{itemize}
+
+\subsection{Colonists}
+\label{gamedesign:colonists}
+
+The following colonists and their respective abilities are available in \emph{Colonizers}:
+\begin{itemize}
+    \item Visionary
+        \begin{itemize}
+            \item Passive Ability: Draw a card if the player's hand is not full
+                (maximum hand capacity is five).
+            \item Active Ability: None
+        \end{itemize}
+    \item Ecologist
+        \begin{itemize}
+            \item Passive Ability: Gain 1 Omnium for each green module in his colony.
+            \item Active Ability: None
+        \end{itemize}
+    \item Miner
+        \begin{itemize}
+            \item Passive Ability: Gain 1 Omnium for each blue module in his colony.
+            \item Active Ability: None
+        \end{itemize}
+    \item General
+        \begin{itemize}
+            \item Passive Ability: Gain 1 Omnium for each red module in his colony.
+            \item Active Ability: None
+        \end{itemize}
+    \item Opportunist
+        \begin{itemize}
+            \item Passive Ability: None
+            \item Active Ability: Steal up to 2 Omnium from a chosen colonist.
+                If no player controls the chosen colonist, this ability has no effect.
+        \end{itemize}
+    \item Spy
+        \begin{itemize}
+            \item Passive Ability: None
+            \item Active Ability: Swap hands with a chosen colonist.
+                If no player controls the chosen colonist, this ability has no effect.
+        \end{itemize}
+\end{itemize}
+
+\subsection{Modules}
+
+The deck starts with 52 modules. The following is a table of all modules available:
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l@{\hspace{0.5cm}} c c c c}
+    \textbf{Name} & \textbf{Build Cost} & \textbf{Value} & \textbf{Color} & \textbf{Quantity} \\
+    \midrule
+    Oxygen Generator            & 4  & 4   & Green   & 4 \\
+    Water Reservoir             & 5  & 6   & Green   & 4 \\
+    Hydroponics Facility        & 6  & 8   & Green   & 4 \\
+    Eco-Dome                    & 8  & 11  & Green   & 1 \\
+    Marketplace                 & 2  & 2   & Blue    & 4 \\
+    Warehouse                   & 3  & 3   & Blue    & 4 \\
+    Quarry                      & 5  & 6   & Blue    & 4 \\
+    Omnium Purification Plant   & 8  & 10  & Blue    & 1 \\
+    Garrison                    & 1  & 1   & Red     & 4 \\
+    Barracks                    & 2  & 2   & Red     & 4 \\
+    Military Academy            & 3  & 3   & Red     & 4 \\
+    Planetary Defense System    & 6  & 7   & Red     & 1 \\
+    Housing Unit                & 1  & 1   & None    & 4 \\
+    Spaceport                   & 4  & 5   & None    & 4 \\
+    Research Lab                & 6  & 8   & None    & 4 \\
+    Mass Relay                  & 12 & 16  & None    & 1 \\
+    \bottomrule
+    \end{tabular}
+    \caption{Available modules.}\label{tabde:modules}
+\end{table}
