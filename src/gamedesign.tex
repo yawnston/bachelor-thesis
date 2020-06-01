@@ -49,20 +49,36 @@ to gain an advantage, or to conspire against another player in order to damage
 that player's chances of winning. Many traditional AI algorithms are not capable
 of cooperation or conspiration, which provides room for specialized AIs to shine.
 
+\emph{Colonizers} is technically not finite, since there exists a strategy which,
+if employed by all players, will lead to the game never ending. The game also
+has potentially infinite states. In practice this
+is incredibly unlikely, since the strategy involves players intentionally
+passing up plays which would move them closer to the victory condition. 
+
 \section{Game Rules}
 
 The game is played in rounds, which comprise of turns. Turns then comprise of phases.
 The four players start the game in a given order, and they always take turns
 in this order for the entire game.
 
-Each player has a colony where they can build modules (the game's terminology for buildings).
-Each module has a value, and the goal of the game is to build the most valuable colony.
-When any player builds eight modules in their colony, the game ends at the end
-of that round. When the game ends, the values of all modules in each player's colony
+Each player has a colony where they can build modules.
+Each module has a point value, and the goal of the game is to build the most valuable colony.
+When any player builds eight modules in their colony, the game will end at the end
+of that round, after the remaining players have taken their turns.
+When the game ends, the values of all modules in each player's colony
 are added up, and the resulting value is that player's final score. Players can also
 get a bonus to their score if they reached eight buildings in their colony before
 the game ended --- the first player to build eight modules gets four bonus points,
 and other players to build eight modules get two bonus points each.
+\footnote{As an example, assume that all four players have seven modules in their colony.
+When player 1 takes their turn, they do not build a module, ending the turn with seven modules.
+Player 2 then builds a module on their turn, taking them to eight modules in their colony.
+This triggers the game end condition, but the game is not over until all players have taken
+their turn this round. Since player 2 was the first to reach eight modules, they get four
+bonus points. Player 3 then also builds a module, taking them to eight. Since player 3
+was not the first to build eight modules, they get two bonus points. Player 4 then does
+not build a module, ending the game with seven modules and zero bonus points. When player 4
+finishes their turn, the game ends.}
 The final ranking of the players when the game ends is determined by points --- players
 with more points rank higher. If multiple players are tied in points, the player whose
 position according to the player order is earlier ranks higher.
@@ -90,7 +106,6 @@ no information about the other players apart from knowing the four colonist he i
 on. In contrast, the last player has relatively little information about the players
 before them, but they know which colonist is removed from play after being left over.
 
-\pagebreak
 \subsection{Proper Turns}
 
 After each player has chosen a colonist, the players take their actual turns, in order
@@ -99,8 +114,11 @@ to the next player.
 
 Each turn is comprised of the following phases:
 \begin{itemize}
-    \item \emph{Draw Phase}. The player may choose between acquiring two Omnium
-        (the game's currency) and drawing 2 modules from the deck. The player
+    \item \emph{Draw Phase}. The player has two options in this phase.
+        They may acquire two Omnium, which is the game's currency. The player's
+        Omnium count persists between rounds. Omnium is used to build modules in
+        the player's colony.
+        The player may also opt to draw 2 modules from the deck. The player
         must then keep one of the modules, and place the other at the bottom of the deck.
         The drawing action is not available if the player's hand is full (five modules).
         The player's colonist is also revealed to other players during this phase.
@@ -112,6 +130,7 @@ Each turn is comprised of the following phases:
         it from their hand.
 \end{itemize}
 
+\clearpage
 \subsection{Colonists}
 \label{gamedesign:colonists}
 
@@ -152,6 +171,7 @@ The following colonists and their respective abilities are available in \emph{Co
         \end{itemize}
 \end{itemize}
 
+\clearpage
 \subsection{Modules}
 
 The deck starts with 52 modules. The following is a table of all modules available:

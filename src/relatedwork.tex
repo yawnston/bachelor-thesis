@@ -1,15 +1,16 @@
 \chapter{Related Work}
 
 Before we discuss the design of \emph{Colonizers} and its implmentation,
-let us first make an overview of existing related work. We are interested mainly
-in two areas here:
+let us first make an overview of existing related work. This chapter will
+demonstrate why existing frameworks would not be a~good fit for \emph{Colonizers}.
+We are interested mainly in two areas here:
 \begin{itemize}
     \item Implementation of similar games, and frameworks facilitating that
     \item Algorithms adapted for multi-player games and algorithms adapted
         for imperfect information games
 \end{itemize}
 
-\section{Games and Frameworks}
+\section{Game Frameworks}
 
 \subsection{OpenAI Gym}
 
@@ -22,10 +23,11 @@ structurally rebuild it. Another benefit is~the fact that it~is easy to create
 new environments, and these newly created environments can be used by anyone,
 since the API is standardized.
 
-The following is an example (as presented in the OpenAI Gym documentation
+\autoref{figrw:gym} is an example (as presented in the OpenAI Gym documentation
 \cite{Openaigym}) of a Python program which solves one of the simpler environments
-available out-of-the-box in OpenAI Gym:
+available out-of-the-box in OpenAI Gym.
 
+\begin{figure}[h!]
 \begin{code}
 import gym
 env = gym.make('CartPole-v0')
@@ -41,6 +43,8 @@ for i_episode in range(20):
             break
 env.close()
 \end{code}
+\caption{OpenAI Gym --- AI implementaion.}\label{figrw:gym}
+\end{figure}
 
 The~environment being solved (\emph{CartPole-v0}) is a~task where the~AI must balance a~pole
 by moving the~cart below it left and right. The agent only performs random moves,
@@ -52,7 +56,7 @@ information for a~few reasons:
     \item It only supports reinforcement learning agents. The API is designed with this
         in mind, and does not provide support for any other machine learning methods.
     \item It does not provide any tools for determinization
-        \footnote{By determinization
+        \footnote{By the determinization
         of a game state, we understand the conversion of a game state with hidden
         information into a game state with perfect information. Determinization
         takes into account the information set of the given player. For example, we can
@@ -83,13 +87,105 @@ Using boardgame.io for the implementation of \emph{Colonizers} would make many t
 much simpler, notably the implementation of game logic would be trivial.
 However, it is also not suitable for the purposes of this thesis, because the AI
 support is poor. The engine does feature a degree of AI support, but the API
-is limited to using pre-existing AIs which ship with the game (an~MCTS AI and
-a~random AI). The API only provides a~method for us to list the legal moves in
+is limited to using pre-existing AIs which ship with the game. The AIs which
+ship with the game are an~MCTS (Monte Carlo Tree Search) AI and
+a~random AI. The API for AI players only provides a~method for us to list the legal moves in
 a~given game state --- it does not however provide ways to implement a~fully
 custom AI.
 
+\clearpage
 \section{Algorithms}
 
-\subsection{Minimax}
+Here we will discuss several existing algorithms which are applicable to \emph{Colonizers}.
+This includes algorithms which will need to be adapted in order to be useful in our
+situation, and algorithms which will work mostly out-of-the-box.
 
-\subsection{Monte Carlo Methods}
+\subsection{MaxN}
+
+Most work in the field of game-playing algorithms has traditionally been done
+in games which involve two players, perfect information, finite games which
+do not feature random processes. These games are also often constant-sum, therefore
+they cannot feature cooperative strategies. One of the most well-known
+algorithms from this field is the Minimax algorithm. The pseudocode
+in \autoref{figrw:minimax} demonstrates the Minimax algorithm.
+
+\begin{figure}[h!]
+\begin{code}
+def minimax(node, depth, isMaximizing):
+    if depth == 0 or node is terminal:
+        return node.heuristicValue
+    if isMaximizing:
+        value = -inf
+        for child in node.children:
+            value = max(value, minimax(child, depth - 1, False))
+        return value
+    else:
+        value = +inf
+        for child in node.children:
+            value = min(value, minimax(child, depth - 1, True))
+        return value
+\end{code}
+\caption{Minimax algorithm.}\label{figrw:minimax}
+\end{figure}
+
+Since Minimax is only useful in the aforementioned types of games, we will look
+to the MaxN algorithm \cite{Luckhardt86}.
+
+The MaxN algorithm is not an extension of Minimax strictly speaking, but it does
+apply the driving principles of Minimax to games with more than two players.
+To introduce multiple players and a non-constant sum game to Minimax, MaxN
+changes the way the game is viewed. Rather than the other players trying to minimize
+the player's gain, each player is trying to maximize their own gain independently.
+Each game state has an associated payoff vector, where the i-th position of the vector
+contains the payoff for player i in this state.
+
+\clearpage
+The procedure MaxN is defined recursively (as presented by Luckhardt and Irani
+\cite{Luckhardt86}) in \autoref{figrw:maxn}.
+
+\begin{figure}[h!]
+\begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+(1) For a terminal node,
+    maxn(node) = payoff vector for node
+(2) Given node is a move for player i, and
+    $(v_{1j},...,v_{nj})$ is maxn($j^{th}$ child of node), then
+    maxn(node) = $(v_{1}^{*},...,v_{n}^{*})$,
+    which is the vector where $v_{i}^{*} = \max\limits_{j} v_{ij}$.
+\end{code}
+\caption{MaxN algorithm.}\label{figrw:maxn}
+\end{figure}
+
+We can see an example of MaxN evaluating a state tree in a three-player
+game in \autoref{figrw:maxntree}. Observe how at each level, the player
+on turn chooses the action which gives them the highest reward.
+
+\begin{figure}[h!]
+\Tree[.A(1,1,1) [.B(0,4,4)  [.C(2,2,5)  [.(3,3,3) ]
+                                        [.(2,2,5) ]]
+                            [.C(0,4,4)  [.(2,5,2) ]
+                                        [.(0,4,4) ]]]
+                [.B(1,1,1)  [.C(4,0,4)  [.(5,2,2) ]
+                                        [.(4,0,4) ]]
+                            [.C(1,1,1)  [.(4,4,0) ]
+                                        [.(1,1,1) ]]]]
+\caption{MaxN tree example.}\label{figrw:maxntree}
+\end{figure}
+
+The MaxN algorithm itself does not solve the problem of imperfect information.
+Therefore we will describe the extension of MaxN to imperfect information
+games in \autoref{sec:algomaxn}.
+
+\subsection{Monte Carlo Tree Search}
+
+Monte Carlo Tree Search \cite{Chaslot10}
+
+"averaging over clairvoyance" \cite{Russell09}
+
+"Determinization does not randomise the
+player's own cards, and information set trees are built solely
+from the point of view of the root player. In a sense this is a
+worst case assumption, but it does mean that these
+algorithms can never exploit the opponents' lack of
+information." \cite{Whitehouse11}
+
+Test text
