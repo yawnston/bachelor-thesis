@@ -175,17 +175,105 @@ The MaxN algorithm itself does not solve the problem of imperfect information.
 Therefore we will describe the extension of MaxN to imperfect information
 games in \autoref{sec:algomaxn}.
 
+\clearpage
 \subsection{Monte Carlo Tree Search}
 
-Monte Carlo Tree Search \cite{Chaslot10}
+Monte Carlo Tree Search \cite{Chaslot10} is an algorithm for searching trees.
+When we talk about MCTS in the context of game playing algorithms, MCTS
+consists of two parts: a moderately shallow tree, and deep simulated games.
+The algorithm grows its tree structure by adding one node at a time, and then
+performing a game simulation from the position associated with the node.
+The reward gained from the result of the game playout is then backpropagated
+up the tree. After iterating, MCTS can then choose the best move in the root
+node by simply choosing the node with the best accumulated reward.
 
-"averaging over clairvoyance" \cite{Russell09}
+While MCTS is applicable to games with perfect information, it needs to be adapted
+for games with imperfect information. A popular approach is determinization,
+which converts states with imperfect information to states with perfect information
+by sampling information sets (an information set is a set of states
+which are possible with respect to the information available to the player)
+\cite{Cowling12}.
 
-"Determinization does not randomise the
+While determinization is a viable strategy, it is not without its pitfalls.
+Russel and Norvig speculate that since all information is revealed after
+determinization, the resulting AI will never make information-gathering
+plays. \cite{Russell09}
+
+Another potential issue is the fact that determinization does not take into account
+the fact that opponents have a degree of uncertainty about the player's own hidden information.
+Whitehouse, Powley and Cowling point out that "Determinization does not randomise the
 player's own cards, and information set trees are built solely
 from the point of view of the root player. In a sense this is a
 worst case assumption, but it does mean that these
 algorithms can never exploit the opponents' lack of
 information." \cite{Whitehouse11}
 
-Test text
+Other potential problems include two mentioned by Frank and Basin \cite{Frank98}.
+The first is \emph{strategy fusion}. This occurs whenever an algorithm attempts to combine
+strategies from particular worlds to produce an optimal strategy for all worlds.
+Quoting Frank and Basin: "The flaw in this approach
+occurs because of the property of incomplete information games that the exact state
+of the world at any given point of play may not be known to a player. This imposes
+a constraint on a player's strategy that he must behave the same way in all possible
+worlds at such points; a constraint typically broken when combining strategies designed
+for individual worlds". The second issue they identified is \emph{non-locality},
+whereby certain determinizations may be essentially irrelevant, since players have
+the ability to avoid them with gameplay decisions.
+
+Some variants of MCTS try to use determinization in clever ways to avoid its drawbacks.
+We will be looking at ISMCTS (Information Set Monte Carlo Tree Search)
+\cite{Cowling12}, in particular we are interested in the SO-ISMCTS variant.
+In order to overcome the obstacles associated with determinization, SO-ISMCTS
+tree nodes correspond to information sets rather than game states. Specifically,
+they correspond to information sets from the root player's point of view. This
+means that if we choose a determinization for a~SO-ISMCTS tree node, it is likely
+that many of that node's edges will not be valid moves in the context
+of the determinized state. Therefore, SO-ISMCTS limits the tree into the subtree
+of valid moves with respect to a given determinization when descending the tree.
+In order to balance exploration and exploitation of actions in the tree,
+a multi-armed bandit algorithm is used during tree traversal.
+
+\autoref{figrw:soismcts} shows high-level pseudocode for the SO-ISMCTS algorithm,
+as presented by Cowling, Powley and Whitehouse \cite{Cowling12}.
+
+\begin{figure}[h!]
+\begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+def SO-ISMCTS($[s_{0}]^{\sim1}, n$):
+    create a single-node tree with root $v_{0}$ corresponding to the
+        root information set $[s_{0}]^{\sim1}$ (from player 1's viewpoint)
+    for n iterations do:
+        choose a determinization $d$ at random from $[s_{0}]^{\sim1}$, and
+        use only nodes/actions compatible with $d$ this iteration
+        
+        # Selection
+        repeat
+            descend the tree (restricted to nodes/acitons compatible 
+            with $d$) using the chosen bandit algorithm
+        until a node $v$ is reached such taht some action from $v$ leads
+        to a player 1 information set which is not
+        currently in the tree or until $v$ is terminal
+        
+        # Expansion
+        if $v$ is nonterminal:
+            choose at random an action $a$ from node $v$ that is
+            compatible with $d$ and does not exist in the tree
+            add a child node to $v$ corresponding to the player
+            1 information set reached using action $a$ and set
+            it as the new current node $v$
+
+        # Simulation
+        run a simulation from $v$ to the end of the game using
+        determinization $d$
+
+        # Backpropagation
+        for each node $u$ visited during this iteration do
+            update $u$'s visit count and total simulation reward
+            for each sibling $w$ of $u$ that was available for
+            selection when $u$ was selected, including $u$ itself do
+                update $w$'s availability count
+
+    return an action from the root node $v_{0}$ such that the
+    number of visits to the corresponding child node is maximal
+\end{code}
+\caption{SO-ISMCTS algorithm.}\label{figrw:soismcts}
+\end{figure}
