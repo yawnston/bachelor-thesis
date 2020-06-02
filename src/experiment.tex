@@ -66,7 +66,7 @@ Note that the chosen seeds do not have any special meaning.
 \subsubsection{Experiment 1}
 
 First off, let us focus on the experiment runs with \texttt{RandomIntelligence}.
-Results of the 1000 runs can seen in table \ref{tabex:randomwins} Note that
+Results of the 1000 runs can be seen in table \ref{tabex:randomwins} Note that
 by "Losses" we mean fourth-place finishes, not failing to finish first.
 
 \begin{table}[h!]
@@ -95,8 +95,7 @@ We can compute $\chi^{2}$ as follows
 $$\chi^{2} = \frac{(310 - 250)^{2}}{250} + \frac{(690 - 750)^{2}}{750} \approx 19.2$$
 This gives us the distribution $\chi^{2}(1)$ with 1 degree of freedom. Our
 $\chi^{2}$ test statistic is $19.2$, which gives us a $p$-value of 0.00001.
-Therefore we can reject the null hypothesis with a statistical significance
-of 0.00001.
+If we consider a significance level of $0.05$, we can reject the null hypothesis.
 
 This may
 indicate a potential balance issue in the rules of the game, with the first position
@@ -110,7 +109,7 @@ about game balance just yet, but this statistical difference is worth keeping in
 The other experiment in this section is very similar to the first one, except
 we have four instances of \texttt{HeuristicIntelligence} instead of
 four instances of \texttt{RandomIntelligence}
-playing against each other. Results of the 1000 runs can seen
+playing against each other. Results of the 1000 runs can be seen
 in table \ref{tabex:heuristicwins}. Note that
 by "Losses" we mean fourth-place finishes, not failing to finish first.
 
@@ -137,26 +136,24 @@ to Experiment 1.
 
 We can start with wins for position 1
 $$\chi^{2} = \frac{(230 - 250)^{2}}{250} + \frac{(770 - 750)^{2}}{750} \approx 2.14$$
-This gives us a~$p$-value of 0.14350, therefore we cannot comfortably
-\footnote{In the context of these experiments, comfortable rejection means rejection
-with a~$p$-value of at most 0.05.}
-reject the null hypothesis that the number of wins for the first position
+This gives us a~$p$-value of 0.14350. If we consider a~significance level of $0.05$,
+we cannot reject the null hypothesis that the number of wins for the first position
 follows the distribution $B(1,0.25)$.
 
 If we move on to wins for position 4, we proceed as follows
 $$\chi^{2} = \frac{(230 - 250)^{2}}{250} + \frac{(770 - 750)^{2}}{750} \approx 6.912$$
 This gives us a $p$-value of 0.00856, therefore we can reject the null hypothesis
-with a~statistical significance of 0.00856.
+if we consider a~statistical significance of $0.05$.
 
 We can also analyze the loss statistics, starting with position 1
 $$\chi^{2} = \frac{(415 - 250)^{2}}{250} + \frac{(585 - 750)^{2}}{750} \approx 145.2$$
 This gives us a $p$-value of nearly 0, therefore we can reject the null hypothesis
-with an unbelievabely small statistical significance.
+when considering a~statistical significance of $0.05$.
 
 For losses at position 4, we have
 $$\chi^{2} = \frac{(135 - 250)^{2}}{250} + \frac{(865 - 750)^{2}}{750} \approx 70.54$$
 This also gives us a $p$-value of nearly 0, therefore we can again reject the null hypothesis
-with an unbelievabely small statistical significance.
+when considering a~statistical significance of $0.05$.
 
 While the differences between wins per position are notable, the most interesting
 are the loss statistics. It would appear that the earlier ranks (particularly the first one)
@@ -194,7 +191,9 @@ is itself based on Minimax \cite{Millington09}. This AI was adapted for imperfec
 information games, and it spends a~non-trivial amount of computing power
 on simply exploring possible determinizations of the current game state.
 If we take that into consideration, along with the fact that the branching factor
-for \emph{Colonizers} is non-trivial, we would expect \texttt{MaxnIntelligence}
+for \emph{Colonizers} is non-trivial
+\footnote{This is explored in depth in \autoref{sec:branching}.}
+, we would expect \texttt{MaxnIntelligence}
 to perform relatively poorly. The depth of the search trees used could not be
 reasonably increased beyond 7, due to performance concerns. We expect that any kind of
 long-term strategy could not be achieved by it since it lacks the necessary
@@ -247,7 +246,7 @@ Note that the chosen seeds do not have any special meaning.
 \subsubsection{Experiment 3}
 
 In Experiment 3, we had one of each type of AI play against each other in 50 games.
-Results of the 50 runs can seen in table \ref{tabex:oneofeach} Note that
+Results of the 50 runs can be seen in table \ref{tabex:oneofeach} Note that
 by "Losses" we mean fourth-place finishes, not failing to finish first.
 
 \begin{table}[h!]
@@ -300,15 +299,16 @@ any position. We can check the hypothesis that the win distribution for ISMCTS
 between positions follows the distribution $B(1,0.25)$. ISMCTS won 37 times in total,
 giving us an expected 9.25 wins per position.
 $$\chi^{2} = \frac{(6 - 9.25)^{2}}{9.25} + \frac{(31 - 27.75)^{2}}{27.75} \approx 1.52$$
-This gives us a $p$-value of 0.21762, therefore we cannot comfortably reject the null
-hypothesis. This means that we cannot reject the hypothesis that ISMCTS is equally likely
+This gives us a $p$-value of 0.21762, therefore we cannot reject the null
+hypothesis if we consider a~statistical significance of $0.05$.
+This means that we cannot reject the hypothesis that ISMCTS is equally likely
 to win in any position.
 
 \subsubsection{Experiment 4}
 
 In Experiment 4, we had two instances of \texttt{HeuristicIntelligence} and two
 instances of \texttt{MaxnIntelligence} play against each other in 50 games.
-Results of the 50 runs can seen in table \ref{tabex:heurmaxn} Note that
+Results of the 50 runs can be seen in table \ref{tabex:heurmaxn} Note that
 by "Losses" we mean fourth-place finishes, not failing to finish first.
 
 \begin{table}[h!]
@@ -326,12 +326,12 @@ Average rank    & 2.13 & 2.87 \\
 
 We can use the $\chi^{2}$ test to check whether there is a statistical difference
 between these AIs' likelihoods to win. We will assume that the heuristic AI's
-wins follow a binomial distribution $B(1,0.5)$.
+wins follow a binomial distribution $B(1,0.5)$. Then
 $$\chi^{2} = \frac{(35 - 25)^{2}}{25} + \frac{(15 - 25)^{2}}{25} = 8$$
-This gives us a $p$-value of 0.00468. This is comfortably below our target
-$p$-value of 0.05, therefore we can reject the null hypothesis with a~statistical
-significance of 0.00468. We have therefore established that in this scenario,
-the heuristic AI performs better than MaxN with statistical significance.
+This gives us a $p$-value of 0.00468. We are considering a~statistical significance of $0.05$,
+therefore we can reject the null hypothesis.
+As a~consequence, we have established that in this scenario,
+the heuristic AI performs significantly better than MaxN.
 
 Since we earlier hypothesized that MaxN would be more likely to win in later
 positions, we can also look at positional results as shown in \autoref{tabex:heurmaxnpos}

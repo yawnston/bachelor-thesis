@@ -43,7 +43,7 @@ game state. If no rules are applicable to a given state, the AI simply
 falls back to random choice. \autoref{algo:heur} shows high-level pseudocode for
 the implemented heuristic AI.
 
-\begin{figure}
+\begin{figure}[ht]
 \begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
 if game phase is "ColonistPick":
     if player has at least 3 modules of the same color in their colony:
@@ -151,7 +151,9 @@ First of all, the choice of SO-ISMCTS warrants some explanation. Cowling, Powley
 and Whitehouse also presented two other variants of ISMCTS: SO-ISMCTS~+~POM and
 MO-ISMCTS \cite{Cowling12}. SO-ISMCTS~+~POM (Single Observer Monte Carlo
 Tree Search + Partially Observable Moves) aims to solve the issue of
-strategy fusion. SO-ISMCTS can be vulnerable to this, since it treats all
+strategy fusion
+\footnote{Strategy fusion is discussed at more length in \autoref{rw:mcts}.}.
+SO-ISMCTS can be vulnerable to this, since it treats all
 opponents' moves as fully observable. SO-ISMCTS~+~POM alleviates this issue
 by making actions which are indistinguishable from the point of view of the player
 share a single edge in the tree. It does this at the cost of significantly weakening
@@ -172,9 +174,11 @@ tradeoff with respect to the identified instance of strategy fusion.
 SO-ISMCTS uses a multi-armed bandit algorithm to balance exploration
 and exploitation when traversing the information set tree.
 In our implementation, we have chosen UCB1 as the multi-armed algorithm.
-Kuleshov and Precup note that "UCB1 achieves the optimal regret up to a
-multiplicative constant, and is said to solve the multi-armed bandit problem"
-\cite{Kuleshov00}. UCB1 calculates the score of a node as
+Kuleshov and Precup \cite{Kuleshov00} note that "UCB1 achieves the optimal regret
+\footnote{Regret in this context means not choosing the optimal decision in
+retrospect.} up to a
+multiplicative constant, and is said to solve the multi-armed bandit problem".
+UCB1 calculates the score of a node as
 $$\overline{X}_{j} + c\sqrt{\frac{\ln{n}}{n_{j}}}$$
 where $\overline{X}_{j}$ is the average reward of the playouts which passed through
 the node $j$, $n$ is the count of visits of the parent of $j$, and $n_{j}$
@@ -190,7 +194,8 @@ achieve more accurate playouts, and therefore more accurate rewards
 than when using random playouts.
 
 The number of iterations we use for ISMCTS is 200. This is an~empirically
-selected value which allows moves to be computed within a reasonale amount of time
+selected value which allows moves to be computed within a reasonable amount of time
 (tens of seconds at most), while having enough room to properly expand
-the tree. Iterative deepening could have been used, but we decided to
-not use it in order to make the AI's behavior reproducible.
+the tree. We also considered imposing a hard time limit on the AI's decision time,
+and simply running iterations of ISMCTS until the time expired. We chose not to
+do this for the sake of the AI behaving consistently on different machines.

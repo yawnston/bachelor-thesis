@@ -54,7 +54,8 @@ OpenAI Gym is not particularly suitable for the study of multi-player games with
 information for a~few reasons:
 \begin{itemize}
     \item It only supports reinforcement learning agents. The API is designed with this
-        in mind, and does not provide support for any other machine learning methods.
+        in mind, and only provides appropriate tools to machine learning approaches.
+        Other kinds of artificial intelligence are not very well supported.
     \item It does not provide any tools for determinization
         \footnote{By the determinization
         of a game state, we understand the conversion of a game state with hidden
@@ -107,7 +108,7 @@ Most work in the field of game-playing algorithms has traditionally been done
 in games which involve two players, perfect information, finite games which
 do not feature random processes. These games are also often constant-sum, therefore
 they cannot feature cooperative strategies. One of the most well-known
-algorithms from this field is the Minimax algorithm. The pseudocode
+algorithms from this field is the Minimax algorithm \cite{Millington09}. The pseudocode
 in \autoref{figrw:minimax} demonstrates the Minimax algorithm.
 
 \begin{figure}[h!]
@@ -126,7 +127,7 @@ def minimax(node, depth, isMaximizing):
             value = min(value, minimax(child, depth - 1, True))
         return value
 \end{code}
-\caption{Minimax algorithm.}\label{figrw:minimax}
+\caption{Minimax algorithm \cite{Millington09}.}\label{figrw:minimax}
 \end{figure}
 
 Since Minimax is only useful in the aforementioned types of games, we will look
@@ -137,8 +138,8 @@ apply the driving principles of Minimax to games with more than two players.
 To introduce multiple players and a non-constant sum game to Minimax, MaxN
 changes the way the game is viewed. Rather than the other players trying to minimize
 the player's gain, each player is trying to maximize their own gain independently.
-Each game state has an associated payoff vector, where the i-th position of the vector
-contains the payoff for player i in this state.
+Each game state has an associated payoff vector, where the $i$-th position of the vector
+contains the payoff for player $i$ in this state.
 
 \clearpage
 The procedure MaxN is defined recursively (as presented by Luckhardt and Irani
@@ -153,7 +154,7 @@ The procedure MaxN is defined recursively (as presented by Luckhardt and Irani
     maxn(node) = $(v_{1}^{*},...,v_{n}^{*})$,
     which is the vector where $v_{i}^{*} = \max\limits_{j} v_{ij}$.
 \end{code}
-\caption{MaxN algorithm.}\label{figrw:maxn}
+\caption{MaxN algorithm \cite{Luckhardt86}.}\label{figrw:maxn}
 \end{figure}
 
 We can see an example of MaxN evaluating a state tree in a three-player
@@ -176,7 +177,6 @@ The MaxN algorithm itself does not solve the problem of imperfect information.
 Therefore we will describe the extension of MaxN to imperfect information
 games in \autoref{sec:algomaxn}.
 
-\clearpage
 \subsection{Monte Carlo Tree Search}
 \label{rw:mcts}
 
@@ -197,28 +197,28 @@ which are possible with respect to the information available to the player)
 \cite{Cowling12}.
 
 While determinization is a viable strategy, it is not without its pitfalls.
-Russel and Norvig speculate that since all information is revealed after
+Russel and Norvig \cite{Russell09} speculate that since all information is revealed after
 determinization, the resulting AI will never make information-gathering
-plays. \cite{Russell09}
+plays.
 
 Another potential issue is the fact that determinization does not take into account
 the fact that opponents have a degree of uncertainty about the player's own hidden information.
-Whitehouse, Powley and Cowling point out that "Determinization does not randomise the
-player's own cards, and information set trees are built solely
+Whitehouse, Powley and Cowling \cite{Whitehouse11} point out that "Determinization
+does not randomise the player's own cards, and information set trees are built solely
 from the point of view of the root player. In a sense this is a
 worst case assumption, but it does mean that these
 algorithms can never exploit the opponents' lack of
-information." \cite{Whitehouse11}
+information".
 
 Other potential problems include two mentioned by Frank and Basin \cite{Frank98}.
 The first is \emph{strategy fusion}. This occurs whenever an algorithm attempts to combine
 strategies from particular worlds to produce an optimal strategy for all worlds.
-Quoting Frank and Basin: "The flaw in this approach
+Quoting Frank and Basin \cite{Frank98}: "\emph{The flaw in this approach
 occurs because of the property of incomplete information games that the exact state
-of the world at any given point of play may not be known to a player. This imposes
-a constraint on a player's strategy that he must behave the same way in all possible
-worlds at such points; a constraint typically broken when combining strategies designed
-for individual worlds". The second issue they identified is \emph{non-locality},
+of the world at any given point of play may not be known to a~player. This imposes
+a~constraint on a~player's strategy that he must behave the same way in all possible
+worlds at such points; a~constraint typically broken when combining strategies designed
+for individual worlds}". The second issue they identified is \emph{non-locality},
 whereby certain determinizations may be essentially irrelevant, since players have
 the ability to avoid them with gameplay decisions.
 
@@ -238,7 +238,7 @@ a multi-armed bandit algorithm is used during tree traversal.
 \autoref{figrw:soismcts} shows high-level pseudocode for the SO-ISMCTS algorithm,
 as presented by Cowling, Powley and Whitehouse \cite{Cowling12}.
 
-\begin{figure}[h!]
+\begin{figure}[ht]
 \begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
 def SO-ISMCTS($[s_{0}]^{\sim1}, n$):
     create a single-node tree with root $v_{0}$ corresponding to the
@@ -277,5 +277,5 @@ def SO-ISMCTS($[s_{0}]^{\sim1}, n$):
     return an action from the root node $v_{0}$ such that the
     number of visits to the corresponding child node is maximal
 \end{code}
-\caption{SO-ISMCTS algorithm.}\label{figrw:soismcts}
+\caption{SO-ISMCTS algorithm \cite{Cowling12}.}\label{figrw:soismcts}
 \end{figure}

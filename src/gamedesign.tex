@@ -49,11 +49,11 @@ to gain an advantage, or to conspire against another player in order to damage
 that player's chances of winning. Many traditional AI algorithms are not capable
 of cooperation or conspiration, which provides room for specialized AIs to shine.
 
-\emph{Colonizers} is technically not finite, since there exists a strategy which,
+\emph{Colonizers} is technically not finite, since there exists a~strategy which,
 if employed by all players, will lead to the game never ending. The game also
 has potentially infinite states. In practice this
 is incredibly unlikely, since the strategy involves players intentionally
-passing up plays which would move them closer to the victory condition. 
+passing up plays which would move them closer to the victory condition.
 
 \section{Game Rules}
 
@@ -67,7 +67,7 @@ When any player builds eight modules in their colony, the game will end at the e
 of that round, after the remaining players have taken their turns.
 When the game ends, the values of all modules in each player's colony
 are added up, and the resulting value is that player's final score. Players can also
-get a bonus to their score if they reached eight buildings in their colony before
+get a bonus to their score if they reached eight modules in their colony before
 the game ended --- the first player to build eight modules gets four bonus points,
 and other players to build eight modules get two bonus points each.
 \footnote{As an example, assume that all four players have seven modules in their colony.
@@ -174,7 +174,11 @@ The following colonists and their respective abilities are available in \emph{Co
 \clearpage
 \subsection{Modules}
 
-The deck starts with 52 modules. The following is a table of all modules available:
+The deck starts with 52 modules. Modules have no special effects on the game board,
+the only interaction the player has with them is building them.
+The modules built in the player's colony also influence the passive ability
+of the following colonists: Ecologist, Miner, General.
+The following is a table of all modules available:
 
 \begin{table}[h!]
     \centering
@@ -201,3 +205,46 @@ The deck starts with 52 modules. The following is a table of all modules availab
     \end{tabular}
     \caption{Available modules.}\label{tabde:modules}
 \end{table}
+
+\section{Branching Factor}
+\label{sec:branching}
+
+The branching factor of a~game is an important statistic which has heavy
+influence on the performance of many game-playing algorithms \cite{Michalewicz04}.
+Therefore it is useful to analyze the branching factor present in \emph{Colonizers}.
+
+Firstly, we can analyze the branching factor present during the colonist pick phase.
+There are six colonists in the game, and one of them is always randomly
+removed. Then, players take turns picking from the remaining five colonists.
+This means that the first player may choose from five colonists, and the last
+player may choose from only two. We can view the distribution of colonists during the
+pick phase as a permutation of colonists, therefore there are $6! = 720$
+different outcomes for the colonist pick phase. An interesting case are permutations
+where the first and last colonist (the colonists removed from play) are swapped.
+Even though both end up out of play for the round, their presence during the pick
+phase has an~observable effect on the players' information sets. Therefore we must
+consider these permutations as distinct.
+
+During the draw phase, a~player may either gain Omnium, or draw two cards and discard
+one of them. This means that the draw phase for a single player has $3$ different outcomes.
+
+In the power phase, branching factor is only relevant for colonists with active abilities,
+namely Spy and Opportunist. Players controlling either of these colonists may choose
+to either not use their power, or to target one of the five remaining colonists.
+This gives us $6$ possible choices. For other colonists, the branching
+factor is $1$. Since two out of the six colonists have an active ability,
+we can say that the average branching factor for the power phase is
+$\frac{16}{6} \approx 2.67$.
+
+Lastly, we will consider the build phase. A~player may always choose to build nothing.
+Since the hand size is limited to five, a~player may choose to perform up to six
+different actions during the build phase.
+
+Altogether, this gives us an approximate branching factor of $3 * \frac{16}{6} * 6 = 48$
+per player turn taken. Since each player takes a turn during a round, we have
+a branching factor of $48^{4} = 5 308 416$ per round. If we also consider the colonist pick phase,
+we have an~approximate branching factor of $5 308 416 * 720 = 3 822 059 520$ for a~complete
+round --- nearly four billion outcomes. For reference, game length usually ranges
+between from about 15 to 40 rounds.
+\footnote{We did not conduct exact measurements for game length, these values are simply
+approximate observations.}.
