@@ -98,6 +98,45 @@ else if game phase is "Build":
 \section{MaxN}
 \label{sec:algomaxn}
 
+The principles of the MaxN algorithm have been explained in \autoref{rw:maxn}. Therefore
+this section will focus mainly on describing the adaptations made in order for it
+to function in an environment with imperfect information.
+
+As adaptation to imperfect information, we used determinization to transform
+imperfect information states into perfect information states.
+\autoref{algo:maxndet} shows a code excerpt with the determinization usage.
+The adapted algorithm samples \texttt{DETERMINIZE\_COUNT} determinizations,
+and runs the regular MaxN algorithm for that determinization. The move suggested
+by these runs are saved, and after all sampled determinizations are processed,
+the move chosen by the adapted algorithm is the move which was chosen as the best
+move the most often by the regular MaxN runs.
+
+\begin{figure}[h!]
+\begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+def pickAction(self, actualGameState):
+    \# Small optimization when we don't have a choice
+    if len(actualGameState["Actions"]) == 1:
+        return 0
+
+    \# Counter for number of times the given action was the best
+    actionValues = [0 for x in range(len(actualGameState["Actions"]))]
+    for i in range(self.DETERMINIZE\_COUNT):
+        gameState = self.determinize()
+        rootNode = MaxnNode(gameState, 0)
+        payoffs = self.maxnPayoffs(rootNode, self.SEARCH\_DEPTH)
+        
+        bestIndex = max(range(len(payoffs)), key=lambda i: payoffs[i])
+        actionValues[bestIndex] += 1
+
+    return max(range(len(actionValues)), key=lambda i: actionValues[i])
+\end{code}
+\caption{Determinization used for MaxN.}\label{algo:maxndet}
+\end{figure}
+
+Values for the mentioned constants were selected as \texttt{DETERMINIZE\_COUNT = 10}
+and \texttt{SEARCH\_DEPTH = 7}. These were empirically selected to allow for decent
+response time when a move is requested.
+
 \section{Information Set Monte Carlo Tree Search}
 
 The chosen variant of ISMCTS is SO-ISMCTS. This variant's pseudocode
@@ -130,7 +169,6 @@ creates an instance of strategy fusion. SO-ISMCTS was ultimately chosen
 since it has the benefit of being simpler, and the choice is a conscious
 tradeoff with respect to the identified instance of strategy fusion.
 
-\clearpage
 SO-ISMCTS uses a multi-armed bandit algorithm to balance exploration
 and exploitation when traversing the information set tree.
 In our implementation, we have chosen UCB1 as the multi-armed algorithm.
@@ -150,3 +188,9 @@ described in \autoref{sec:algoheur} to perform
 game playouts during the simulation stage of the algorithm. This helps
 achieve more accurate playouts, and therefore more accurate rewards
 than when using random playouts.
+
+The number of iterations we use for ISMCTS is 200. This is an~empirically
+selected value which allows moves to be computed within a reasonale amount of time
+(tens of seconds at most), while having enough room to properly expand
+the tree. Iterative deepening could have been used, but we decided to
+not use it in order to make the AI's behavior reproducible.
