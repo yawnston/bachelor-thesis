@@ -85,7 +85,9 @@ position according to the player order is earlier ranks higher.
 More information about modules and ways to interact with them follow in subsequent subsections.
 
 There is also a rare game end condition, which is triggered by players attempting to
-draw from an empty deck. This immediately ends the game with a draw, giving all
+draw from an empty deck
+\footnote{The deck is discussed in more detail in \autoref{de:modules}}.
+This immediately ends the game with a draw, giving all
 players zero points and a rank of zero.
 
 \subsection{Colonist Pick}
@@ -121,6 +123,8 @@ Each turn is comprised of the following phases:
         The player may also opt to draw 2 modules from the deck. The player
         must then keep one of the modules, and place the other at the bottom of the deck.
         The drawing action is not available if the player's hand is full (five modules).
+        If the player controls a~colonist with a~passive ability, this ability
+        is automatically performed at the start of the draw phase.
         The player's colonist is also revealed to other players during this phase.
     \item \emph{Power Phase}. The player may choose to use their colonist's active
         ability if the colonist has one.
@@ -173,8 +177,18 @@ The following colonists and their respective abilities are available in \emph{Co
 
 \clearpage
 \subsection{Modules}
+\label{de:modules}
 
-The deck starts with 52 modules. Modules have no special effects on the game board,
+At the start of the game, all modules start in a~deck in a~random order.
+The order of modules in the deck is hidden. Whenever a~module is drawn by
+a~player, it is taken from the top of the deck. Whenever a~module is discarded, it
+is placed at the bottom of the deck. The only exception to this is the situation where
+a player is discarding a card after drawing two in the draw phase. If the player's
+colonist is the Visionary, it is possible for the player to overdraw (draw more modules
+than the hand capacity would allow). In this situation, overdrawn modules are removed
+from play entirely for the rest of the game.
+
+There are 52 modules in the game. Modules have no special effects on the game board,
 the only interaction the player has with them is building them.
 The modules built in the player's colony also influence the passive ability
 of the following colonists: Ecologist, Miner, General.

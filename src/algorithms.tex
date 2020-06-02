@@ -153,6 +153,8 @@ MO-ISMCTS \cite{Cowling12}. SO-ISMCTS~+~POM (Single Observer Monte Carlo
 Tree Search + Partially Observable Moves) aims to solve the issue of
 strategy fusion
 \footnote{Strategy fusion is discussed at more length in \autoref{rw:mcts}.}.
+A partially observable move is a~move which is observable by the player, but there
+is some hidden information associated with the move.
 SO-ISMCTS can be vulnerable to this, since it treats all
 opponents' moves as fully observable. SO-ISMCTS~+~POM alleviates this issue
 by making actions which are indistinguishable from the point of view of the player
