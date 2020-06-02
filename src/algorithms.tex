@@ -35,6 +35,7 @@ the random decision making does not have to converge towards an~end state.
 This situation is extremely unlikely however.
 
 \section{Heuristics}
+\label{sec:algoheur}
 
 The heuristic AI is intended to be the real baseline for other implemented AI algorithms.
 It comprises of a number of rules which determine the action to perform in a given
@@ -98,3 +99,54 @@ else if game phase is "Build":
 \label{sec:algomaxn}
 
 \section{Information Set Monte Carlo Tree Search}
+
+The chosen variant of ISMCTS is SO-ISMCTS. This variant's pseudocode
+has already been shown in \autoref{figrw:soismcts} Since the actual
+implementation is mostly faithful to the pseudocode presented in the original
+ISMCTS paper \cite{Cowling12}, we will not be repeating the pseudocode in this section.
+Many of the algorithm's strengths and weaknesses have also been discussed in
+\autoref{rw:mcts}, therefore this section will mostly highlight some implementation
+details.
+
+First of all, the choice of SO-ISMCTS warrants some explanation. Cowling, Powley
+and Whitehouse also presented two other variants of ISMCTS: SO-ISMCTS~+~POM and
+MO-ISMCTS \cite{Cowling12}. SO-ISMCTS~+~POM (Single Observer Monte Carlo
+Tree Search + Partially Observable Moves) aims to solve the issue of
+strategy fusion. SO-ISMCTS can be vulnerable to this, since it treats all
+opponents' moves as fully observable. SO-ISMCTS~+~POM alleviates this issue
+by making actions which are indistinguishable from the point of view of the player
+share a single edge in the tree. It does this at the cost of significantly weakening
+the opponent model, since it makes the assumption that the opponent chooses randomly
+between moves indistinguishable to the player. MO-ISMCTS (Multiple Observer Information
+Set Monte Carlo Tree Search) addresses this issue by maintaining a separate tree
+for each player, representing information sets from the point of view of that player.
+
+The reason SO-ISMCTS was chosen over the two other variants is because in \emph{Colonizers},
+strategy fusion is not as big of a~problem as it might seem. This is because
+partially observable actions like drawing cards or swapping hands often lead to the
+same strategy being played regardless. The only potential problematic area
+is the colonist pick phase, because using active colonist abilities then
+creates an instance of strategy fusion. SO-ISMCTS was ultimately chosen
+since it has the benefit of being simpler, and the choice is a conscious
+tradeoff with respect to the identified instance of strategy fusion.
+
+\clearpage
+SO-ISMCTS uses a multi-armed bandit algorithm to balance exploration
+and exploitation when traversing the information set tree.
+In our implementation, we have chosen UCB1 as the multi-armed algorithm.
+Kuleshov and Precup note that "UCB1 achieves the optimal regret up to a
+multiplicative constant, and is said to solve the multi-armed bandit problem"
+\cite{Kuleshov00}. UCB1 calculates the score of a node as
+$$\overline{X}_{j} + c\sqrt{\frac{\ln{n}}{n_{j}}}$$
+where $\overline{X}_{j}$ is the average reward of the playouts which passed through
+the node $j$, $n$ is the count of visits of the parent of $j$, and $n_{j}$
+is the number of times the node $j$ was selected during the algorithm.
+$c$ denotes the exploration constant, and for our implementation, we chose a~value
+of $0.7$, which was found to be a reasonable value by Cowling, Powley and Whitehouse
+\cite{Cowling12}.
+
+Our implementation of SO-ISMCTS also uses the heuristic algorithm
+described in \autoref{sec:algoheur} to perform
+game playouts during the simulation stage of the algorithm. This helps
+achieve more accurate playouts, and therefore more accurate rewards
+than when using random playouts.
