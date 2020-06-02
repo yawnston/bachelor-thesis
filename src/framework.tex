@@ -75,8 +75,6 @@ as well as easy to implement.
 
 \section{Interface}
 
-TODO: describe how to add the new AI file
-
 The API for communication consists of the AI subclassing the \texttt{AIBase} class,
 and implementing the \texttt{messageCallback(self, gameState)} abstract method. This method
 is invoked by the game engine when it requires a~move to be chosen by the AI. The
@@ -136,3 +134,37 @@ class is very simple.
 
 Note that the game engine invokes the AI script via command line, which
 means that the AI must contain the \texttt{\_\_main\_\_} boilerplate code.
+
+\section{Adding new AIs}
+
+There are two supported kinds of AI scripts: a~stand-alone Python file,
+and a folder with potentially multiple Python files and a complicated subdirectory
+structure. The second option exists to facilitate more complicated AIs, where
+implementing the whole AI in a single Python file would not be reasonable.
+
+The game looks for AI files in an~internal directory inside its installation folder.
+While it is possible to add and remove scripts this way, the GUI provides a~way
+to do this easily. In order for an~AI script to be recognized by the game, it must not
+only be located in the internal directory, but it must also follow certain conventions.
+
+For stand-alone Python files, the only convention is that the file must follow the naming
+convention of \texttt{<Name>Intelligence.py}. An example of this
+is \texttt{RandomIntelligence.py}.
+
+For folder-based AIs, the folder itself must follow the naming convention of
+\texttt{<Name>Intelligence}, for example \texttt{NestedIntelligence}. This
+folder must also directly contain a~file named \texttt{main.py}, which will
+be used as the AI's entrypoint.
+
+The AI needs to reference the \texttt{AICore.py}
+file in some way, since it contains the AI base class. This file is contained in
+the aforementioned internal directory, which means that stand-alone AI scripts
+placed in this directory can import the file without issues. The problem comes
+with folder-based AIs, since Python unfortunately does not provide a~convenient way
+to import files which are higher in the file hierarchy. Therefore when copying
+AI folders with the GUI, the \texttt{AICore.py} file will automatically be complicated
+into the new AI's directory. This means that folder-based AIs for \emph{Colonizers}
+cannot contain a \texttt{AICore.py} file in the top level of their folder,
+since the file would be overwritten during copying. Alternatively, the folder
+can be manually copied into the game files. In that situation however, the
+\texttt{AICore.py} file must be copied manually as well.
