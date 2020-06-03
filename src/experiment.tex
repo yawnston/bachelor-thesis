@@ -13,7 +13,7 @@ The following sections elaborate on the experiments and their results.
 
 \section{Game Balance Experiments}
 
-As mentioned in \autoref{chap:gamedesign}, the game features a degree of asymmetry.
+As mentioned in \Cref{chap:gamedesign}, the game features a degree of asymmetry.
 The order in which players take their turns inherently changes the viability of certain
 strategies, because players in different positions have different information sections
 available to them. For example, the~player in~the~first position has perfect information
@@ -48,7 +48,7 @@ experiment it was \texttt{HeuristicIntelligence}.
 All random events were seeded, and the results of the games were captured in JSON
 (JavaScript Object Notation) files.
 The results were then parsed and analyzed. The JSON result files can be found
-in~the~attached source code, refer to \autoref{chap:experimentdocs} for more information
+in~the~attached source code, refer to \Cref{chap:experimentdocs} for more information
 on their location and semantics.
 
 The random seeds used by application components during the experiment were as follows.
@@ -203,7 +203,7 @@ information games, and it spends a~non-trivial amount of computing power
 on simply exploring possible determinizations of the current game state.
 If we take that into consideration, along with the fact that the branching factor
 for \emph{Colonizers} is non-trivial
-\footnote{This is explored in depth in \autoref{sec:branching}.}
+\footnote{This is explored in depth in \Cref{sec:branching}.}
 , we would expect \texttt{MaxnIntelligence}
 to perform relatively poorly. The depth of the search trees used could not be
 reasonably increased beyond 7, due to performance concerns. We expect that any kind of
@@ -236,7 +236,7 @@ against the heuristic solution.
 All random events were seeded, and the results of the games were captured in JSON
 files.
 The results were then parsed and analyzed. The JSON result files can be found
-in~the~attached source code, refer to \autoref{chap:experimentdocs} for more information
+in~the~attached source code, refer to \Cref{chap:experimentdocs} for more information
 on their location and semantics.
 
 The random seeds used by application components during the experiment were as follows.
@@ -291,7 +291,7 @@ This makes sense, considering that the heuristic AI is a collection of rules
 designed to always move the AI towards gaining score, even if it is not optimal.
 
 We can take a look at position-based data in order to gain insight into which AIs
-are strong in which positions. \autoref{tabex:oneofeachpos} shows positions where
+are strong in which positions. \Cref{tabex:oneofeachpos} shows positions where
 the AIs scored their wins.
 
 \begin{table}[h!]
@@ -352,7 +352,7 @@ As a~consequence, we have established that in this scenario,
 the heuristic AI performs significantly better than MaxN.
 
 Since we earlier hypothesized that MaxN would be more likely to win in later
-positions, we can also look at positional results as shown in \autoref{tabex:heurmaxnpos}
+positions, we can also look at positional results as shown in \Cref{tabex:heurmaxnpos}
 
 \begin{table}[h!]
 \centering
@@ -404,7 +404,7 @@ Average rank    & 3.26 & 1.74 \\
 
 We can immediately see that there is not much point in examining these results
 statistically, since it is obvious that ISMCTS is significantly better.
-We will therefore analyze the positional results as shown in \autoref{tabex:heurismctspos}
+We will therefore analyze the positional results as shown in \Cref{tabex:heurismctspos}
 in more detail, since they paint a~less obvious picture.
 
 \begin{table}[h!]

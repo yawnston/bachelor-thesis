@@ -9,7 +9,7 @@ taken when creating them.
 The random decision algorithm is rather primitive --- when it is presented with
 a~choice of actions, it simply picks a random one. It is meant to be
 the bottom baseline for other algorithms,
-as well as being a proof-of-concept. \autoref{algo:random} shows the AI class which
+as well as being a proof-of-concept. \Cref{algo:random} shows the AI class which
 implements this logic.
 
 \begin{figure}[h!]
@@ -113,7 +113,7 @@ sit in his hand, many players will try to keep as few resources possible.
 They will instead try to spend them as fast as possible, since modules in the colony
 are theirs permanently. Things we discussed in the discard phase apply here as well.
 
-\autoref{algo:heur} shows high-level pseudocode for
+\Cref{algo:heur} shows high-level pseudocode for
 the implemented heuristic AI.
 
 \begin{figure}[ht]
@@ -171,15 +171,15 @@ else if game phase is "Build":
 \section{MaxN}
 \label{sec:algomaxn}
 
-The principles of the MaxN algorithm have been discussed in \autoref{rw:maxn}. 
-However, the algorithm as presented in \autoref{rw:maxn} would not be applicable
+The principles of the MaxN algorithm have been discussed in \Cref{rw:maxn}. 
+However, the algorithm as presented in \Cref{rw:maxn} would not be applicable
 to a game with hidden information. Therefore
 this section will focus mainly on describing the adaptations made in order for it
 to function in an environment with imperfect information.
 
 As adaptation to imperfect information, we used determinization to transform
 imperfect information states into perfect information states.
-\autoref{algo:maxndet} shows a code excerpt with the determinization usage.
+\Cref{algo:maxndet} shows a code excerpt with the determinization usage.
 The adapted algorithm samples \texttt{DETERMINIZE\_COUNT} determinizations,
 and runs the regular MaxN algorithm for that determinization. This means that during
 each determinization, our modified MaxN algorithm behaves exactly as the existing
@@ -225,7 +225,7 @@ all eight buildings in the player's colony. This bonus, along with victory value
 in the player's colony, count 1:1 towards the heuristic evaluation. Somewhat less value is
 given to having modules in the hand, and having Omnium, with their exact value being
 such that the value gained by having a module built is always greater than having
-it in the hand, and having the Omnium to build it. \autoref{algo:maxneval} shows
+it in the hand, and having the Omnium to build it. \Cref{algo:maxneval} shows
 the code for evaluation of a single player.
 
 \begin{figure}[hb]
@@ -271,11 +271,11 @@ kinds of plays.
 \label{sec:algoismcts}
 
 The chosen variant of ISMCTS is SO-ISMCTS. This variant's pseudocode
-has already been shown in \autoref{figrw:soismcts} Since the actual
+has already been shown in \Cref{figrw:soismcts} Since the actual
 implementation is mostly faithful to the pseudocode presented in the original
 ISMCTS paper \cite{Cowling12}, we will not be repeating the pseudocode in this section.
 Many of the algorithm's strengths and weaknesses have also been discussed in
-\autoref{rw:mcts}, therefore this section will mostly highlight some implementation
+\Cref{rw:mcts}, therefore this section will mostly highlight some implementation
 details.
 
 First of all, the choice of SO-ISMCTS warrants some explanation. Cowling, Powley
@@ -283,7 +283,7 @@ and Whitehouse also presented two other variants of ISMCTS: SO-ISMCTS~+~POM and
 MO-ISMCTS \cite{Cowling12}. SO-ISMCTS~+~POM (Single Observer Monte Carlo
 Tree Search + Partially Observable Moves) aims to solve the issue of
 strategy fusion
-\footnote{Strategy fusion is discussed at more length in \autoref{rw:mcts}.}.
+\footnote{Strategy fusion is discussed at more length in \Cref{rw:mcts}.}.
 A partially observable move is a~move which is observable by the player, but there
 is some hidden information associated with the move.
 SO-ISMCTS can be vulnerable to this, since it treats all
@@ -321,7 +321,7 @@ of $0.7$, which was found to be a reasonable value by Cowling, Powley and Whiteh
 \cite{Cowling12}.
 
 Our implementation of SO-ISMCTS also uses the heuristic algorithm
-described in \autoref{sec:algoheur} to perform
+described in \Cref{sec:algoheur} to perform
 game playouts during the simulation stage of the algorithm. This helps
 achieve more accurate playouts, and therefore more accurate rewards
 than when using random playouts.

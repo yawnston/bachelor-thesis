@@ -23,7 +23,7 @@ structurally rebuild it. Another benefit is~the fact that it~is easy to create
 new environments, and these newly created environments can be used by anyone,
 since the API is standardized.
 
-\autoref{figrw:gym} is an example (as presented in the OpenAI Gym documentation
+\Cref{figrw:gym} is an example (as presented in the OpenAI Gym documentation
 \cite{Openaigym}) of a Python program which solves one of the simpler environments
 available out-of-the-box in OpenAI Gym.
 
@@ -109,7 +109,7 @@ in games which involve two players, perfect information, finite games which
 do not feature random processes. These games are also often constant-sum, therefore
 they cannot feature cooperative strategies. One of the most well-known
 algorithms from this field is the Minimax algorithm \cite{Millington09}. The pseudocode
-in \autoref{figrw:minimax} demonstrates the Minimax algorithm.
+in \Cref{figrw:minimax} demonstrates the Minimax algorithm.
 
 \begin{figure}[h!]
 \begin{code}
@@ -167,7 +167,7 @@ of MaxN, this means the $i$-th player maximizing the $i$-th position of the rewa
 among the current node's children.
 
 The procedure MaxN is defined recursively (as presented by Luckhardt and Irani
-\cite{Luckhardt86}) in \autoref{figrw:maxn}.
+\cite{Luckhardt86}) in \Cref{figrw:maxn}.
 
 \begin{figure}[h!]
 \begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
@@ -192,7 +192,7 @@ reasonably take into account the standing of other players and boost
 the evaluation if other players are doing poorly.
 
 We can see an example of MaxN evaluating a state tree in a three-player
-game in \autoref{figrw:maxntree}. Observe how at each level, the player
+game in \Cref{figrw:maxntree}. Observe how at each level, the player
 on turn chooses the action which gives them the highest reward.
 
 \begin{figure}[ht]
@@ -209,7 +209,7 @@ on turn chooses the action which gives them the highest reward.
 
 The MaxN algorithm itself does not solve the problem of imperfect information.
 Therefore we will describe the extension of MaxN to imperfect information
-games in \autoref{sec:algomaxn}.
+games in \Cref{sec:algomaxn}.
 
 \subsection{Monte Carlo Tree Search}
 \label{rw:mcts}
@@ -302,10 +302,10 @@ of valid moves with respect to a given determinization when descending the tree.
 
 Cowling, Powley and Whitehouse \cite{Cowling12} also present two other versions
 of ISMCTS, namely SO-ISMCTS + POM and MO-ISMCTS. We discuss their merits
-in \autoref{sec:algoismcts}.
+in \Cref{sec:algoismcts}.
 
 
-\autoref{figrw:soismcts} shows high-level pseudocode for the SO-ISMCTS algorithm,
+\Cref{figrw:soismcts} shows high-level pseudocode for the SO-ISMCTS algorithm,
 as presented by Cowling, Powley and Whitehouse \cite{Cowling12}.
 
 \begin{figure}[ht]
