@@ -1,16 +1,103 @@
 \section{Developer Documentation}
-\label{sec:devdocs}
+\label{sec:devdocs} 
 
 \subsection{Prerequisites}
 
+In order to do development work on \emph{Colonizers}, the following software
+is required:
+\begin{itemize}
+    \item .NET Core 3.1 SDK
+    \item Python 3.7
+    \item Node.js 10 and NPM 6.4.1
+\end{itemize}
+
+In order to build and run \emph{Colonizers} in Electron, the Electron.NET CLI
+package is required. You may install this package as a .NET Core tool by running
+the \texttt{dotnet tool install ElectronNET.CLI -g} command. This gives You
+access to the \texttt{electronize} command.
+
+It is also highly recommended to use Visual Studio 2019 for development work
+on the game engine or the UI. Visual Studio 2019 provides support for debugging
+both the UI and the game engine in the same window, which makes for a~seamless
+development experience. Visual Studio 2019 is also capable of attaching
+to an external process for debugging, which turns out to be
+extremely useful with Electron.NET.
+
+For developing and debugging Python AI scripts, the author used Visual Studio Code,
+but other software capable of debugging Python scripts is viable as well.
+
 \subsection{Project Structure}
 
+The entire game is contained in a .sln (solution) file, which is a file type used
+to organize projects in Visual Studio. This solution contains three projects:
+\begin{itemize}
+    \item \texttt{AICore} --- project with the API for AI scripts and the AICore
+        scripts themselves.
+    \item \texttt{Desktop} --- project with the UI, consisting of an~Angular
+        web application and an ASP.NET Core Web API.
+    \item \texttt{Experiments} --- console application project containing
+        the experiment scenarios explored in this thesis.
+\end{itemize}
+
 \subsection{Game Engine}
+
+WORK IN PROGRESS
 
 \subsection{Artificial Intelligence}
 \label{chap:aidev}
 
+WORK IN PROGRESS
+
 \subsection{User Interface}
+
+WORK IN PROGRESS
 
 \subsection{Experiments}
 \label{chap:experimentdocs}
+
+The experiments performed in this thesis are implemented in the \texttt{Experiments}
+project of the \texttt{Colonizers} solution. It is a C\# console application project.
+It is invoked via the command like with two arguments --- the first is a~number
+between 1 and 5, corresponding to the experiment number, and the second
+is the path to the Python executable to use when executing AI scripts.
+
+After the experiment is run, it will produce a JSON file containing the results
+of the experiment. This file is generated in the directory containing the executable.
+\autoref{dd:experimentjson} shows the structure of these JSON files, with less
+important fields omitted for brevity. The JSON files associated with the five
+experiments are also located in the \texttt{Experiments} projects, namely in
+the \texttt{Results} folder. They were added there for reference, since
+some experiments may take tens of hours to run even on reasonably fast
+machines.
+
+\begin{figure}[ht]
+\begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+$\{$
+    "Players": [
+        "Name": "ISMCTS",
+        "PlayerEndInfo": $\{$
+            "Ranking": 3,
+            "VictoryPoints": 24,
+            "Player": $\{$
+                "ID": 1,
+                ...
+            $\}$
+        $\}$
+    ],
+    "Duration": "00:12:28.1879334"
+$\}$
+\end{code}
+\caption{Experiment result JSON file structure (simplified).}\label{dd:experimentjson}
+\end{figure}
+
+The class \texttt{Scenarios} contains the setup for the experiments,
+and each scenario then calls \texttt{ExperimentRunner} to performed
+the experiment itself.
+
+A noteworthy point is the implementation of the shuffling of players between games.
+Since the game engine already possessed an implementation of the Fisher-Yates Shuffle
+\cite{Knuth98} for shuffling lists, this implementation was reused for shuffling the
+players themselves. This means that if we were to run the experiments
+without shuffling, and instead assigning the players the same positions they would
+have been assigned by the shuffle, the results of this experiment would be different.
+This is because running the shuffle manipulates the game engine's random number generator.
