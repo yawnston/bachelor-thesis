@@ -214,7 +214,9 @@ games in \autoref{sec:algomaxn}.
 \subsection{Monte Carlo Tree Search}
 \label{rw:mcts}
 
-Monte Carlo Tree Search \cite{Chaslot10} is an algorithm for searching trees.
+Monte Carlo Tree Search \cite{Chaslot10} is a class of algorithms for searching trees.
+In comparison with the Minimax class of algorithms, it does not feature
+a positional evaluation function. Instead it uses simulation to evaluate positions.
 When we talk about MCTS in the context of game playing algorithms, MCTS
 consists of two parts: a moderately shallow tree, and deep simulated games.
 The algorithm grows its tree structure by adding one node at a time, and then
@@ -222,6 +224,37 @@ performing a game simulation from the position associated with the node.
 The reward gained from the result of the game playout is then backpropagated
 up the tree. After iterating, MCTS can then choose the best move in the root
 node by simply choosing the node with the best accumulated reward.
+
+We can divide a MCTS-class algorithm into four main stages:
+\begin{itemize}
+    \item \emph{Selection}: Descend the state tree until a node is reached
+        such that at least one of the actions that leads from it has not
+        yet been explored. We will speak more about the consideration which
+        goes into descending the tree later in this section.
+    \item \emph{Expansion}: Choose an action that has not yet been explored
+        and add its corresponding node into the tree.
+    \item \emph{Simulation}: Run a simulation of the game from the newly
+        added state.
+    \item \emph{Backpropagation}: Propagate the reward from the result
+        of the simulation back through the way we descended the tree.
+\end{itemize}
+
+A concept important to MCTS-class algorithms is the multi-armed bandit problem.
+We can best understand the problem by reasoning about the following example.
+Suppose that we have a slot machine with two arms, and both arms have properties
+which are not known to us. We start by pulling the left arm, and get a payout
+of 1. In this situation, it would seem reasonable to try the right arm at least once,
+in case its payouts were much higher than those of the left arm. Let us then assume that
+we pull the right arm and get a payout of $0.5$. Should we keep pulling the left arm
+or the right arm? The answer to this is not easy, and there are multiple types
+of algorithms designed to solve the problem of exploration versus exploitation,
+including stochastic and adaptive methods \cite{Slivkins19}.
+
+We can observe that the problem of choosing whether to perform playouts in a~node
+where we won many times previously, or whether to try new nodes is a~kind of
+multi-armed problem. We can therefore apply algorithms designed to solve
+multi-armed problems in choosing which nodes to explore and which nodes
+to exploit in MCTS-class algorithms.
 
 While MCTS is applicable to games with perfect information, it needs to be adapted
 for games with imperfect information. A popular approach is determinization,
@@ -266,8 +299,11 @@ means that if we choose a determinization for a~SO-ISMCTS tree node, it is likel
 that many of that node's edges will not be valid moves in the context
 of the determinized state. Therefore, SO-ISMCTS limits the tree into the subtree
 of valid moves with respect to a given determinization when descending the tree.
-In order to balance exploration and exploitation of actions in the tree,
-a multi-armed bandit algorithm is used during tree traversal.
+
+Cowling, Powley and Whitehouse \cite{Cowling12} also present two other versions
+of ISMCTS, namely SO-ISMCTS + POM and MO-ISMCTS. We discuss their merits
+in \autoref{sec:algoismcts}.
+
 
 \autoref{figrw:soismcts} shows high-level pseudocode for the SO-ISMCTS algorithm,
 as presented by Cowling, Powley and Whitehouse \cite{Cowling12}.
@@ -285,7 +321,7 @@ def SO-ISMCTS($[s_{0}]^{\sim1}, n$):
         repeat
             descend the tree (restricted to nodes/acitons compatible 
             with $d$) using the chosen bandit algorithm
-        until a node $v$ is reached such taht some action from $v$ leads
+        until a node $v$ is reached such that some action from $v$ leads
         to a player 1 information set which is not
         currently in the tree or until $v$ is terminal
         
