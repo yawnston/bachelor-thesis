@@ -130,7 +130,29 @@ def minimax(node, depth, isMaximizing):
 \caption{Minimax algorithm \cite{Millington09}.}\label{figrw:minimax}
 \end{figure}
 
-Since Minimax is only useful in the aforementioned types of games, we will look
+The core principle of minimax is the fact that in a two-player zero-sum game,
+one player's gain is the other player's loss. Therefore from the point of view
+of the opponent, minimizing the player's score also means maximizing their own.
+When evaluating the game tree, both players can use the same metric to make decisions
+--- one player is maximizing it, and the other is minimizing it.
+The nodes of the tree alternate every level --- in the root state, the current player
+is maximizing the value of nodes, and in the children of the root state, the other
+player is minimizing the value of nodes. In other words, if the root state is associated
+with player A, player A will attempt to choose a~node with a~maximal value at every
+even level of the tree (assuming the root node is level 0). Player B will then attempt
+to choose the least valuable child in nodes at odd levels in the tree.
+Minimax explores the tree of game states up to a depth $d$, whereby rather than
+deepening the tree, it uses a positional evaluation function to evaluate the leaf nodes.
+As found by Hoki and Kaneko \cite{Hoki14}, the quality of the positional evaluation
+function is very critical to the performance of Minimax.
+
+If we want to apply a Minimax-like method to \emph{Colonizers}, we must move away
+somewhat from the original Minimax algorithm. In multi-player games, the game
+is often not a zero-sum game. Minimax can still be applied in this situation, though
+we have to make a relatively strong assumption that the goal of other players
+is to minimize the player's score. We often cannot afford to make this assumption,
+since this would mean that opponents have no regard for their own points.
+Since Minimax is not powerful enough for our use case, we will look
 to the MaxN algorithm \cite{Luckhardt86}.
 
 The MaxN algorithm is not an extension of Minimax strictly speaking, but it does
@@ -139,9 +161,11 @@ To introduce multiple players and a non-constant sum game to Minimax, MaxN
 changes the way the game is viewed. Rather than the other players trying to minimize
 the player's gain, each player is trying to maximize their own gain independently.
 Each game state has an associated payoff vector, where the $i$-th position of the vector
-contains the payoff for player $i$ in this state.
+contains the payoff for player $i$ in this state. Just like in Minimax, levels
+in the tree correspond to players making decisions on their turns. In the context
+of MaxN, this means the $i$-th player maximizing the $i$-th position of the reward vector
+among the current node's children.
 
-\clearpage
 The procedure MaxN is defined recursively (as presented by Luckhardt and Irani
 \cite{Luckhardt86}) in \autoref{figrw:maxn}.
 
@@ -157,6 +181,16 @@ The procedure MaxN is defined recursively (as presented by Luckhardt and Irani
 \caption{MaxN algorithm \cite{Luckhardt86}.}\label{figrw:maxn}
 \end{figure}
 
+It is important to mention that MaxN still uses a positional evaluation function,
+much like Minimax. However, it is not enough to only evaluate leaf nodes
+once. Since each node must have a value for every player, we must run
+the evaluation function once from the perspective of each player in the game.
+Notice that even though each player is only maximizing their own value
+and disregarding that of others, this does not necessarily extend to the
+positional evaluation function itself. The evaluation function could
+reasonably take into account the standing of other players and boost
+the evaluation if other players are doing poorly.
+
 We can see an example of MaxN evaluating a state tree in a three-player
 game in \autoref{figrw:maxntree}. Observe how at each level, the player
 on turn chooses the action which gives them the highest reward.
@@ -170,7 +204,7 @@ on turn chooses the action which gives them the highest reward.
                                         [.(4,0,4) ]]
                             [.C(1,1,1)  [.(4,4,0) ]
                                         [.(1,1,1) ]]]]
-\caption{MaxN tree example.}\label{figrw:maxntree}
+\caption{MaxN tree example \cite{Luckhardt86}.}\label{figrw:maxntree}
 \end{figure}
 
 The MaxN algorithm itself does not solve the problem of imperfect information.

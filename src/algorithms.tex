@@ -40,7 +40,80 @@ This situation is extremely unlikely however.
 The heuristic AI is intended to be the real baseline for other implemented AI algorithms.
 It comprises of a number of rules which determine the action to perform in a given
 game state. If no rules are applicable to a given state, the AI simply
-falls back to random choice. \autoref{algo:heur} shows high-level pseudocode for
+falls back to random choice. First, let us reason about why certain heuristic rules
+were chosen and what they mean.
+
+\subsubsection{Colonist Pick Phase}
+
+Colonists with active abilities have an inherent risk associated with them,
+since they might either hit an unintended target with their ability, or they might
+miss altogether. This is why their payoffs are higher that other colonists ---
+it represents a payoff for the risk taken.
+The approach we took with the colonist pick heuristics is one that makes consistently
+good decisions --- going for synergy-based strategies and getting guaranteed value.
+For example, picking the General when the player has four red modules in their colony
+is not only a~safe play, but it also provides even more value than the risk-based
+colonists, were they to hit their intended target.
+
+An argument could be made for picking risk-based colonists more often when the player
+is in positions 3 or 4, since the earlier players reveal their colonist on their turn,
+essentially removing the risk portion of the colonist. However, in many situations players
+do not hold a large amount of cards or Omnium for a long time. Since players are incentivized
+to be able to build eight modules before the game ends by bonus points, players often
+build modules as soon as it is possible. This strategy also reduces the risk of being
+targeted by other players. In summary, we considered such rules to be of little use,
+considering the situations where they apply are so rare.
+
+\subsubsection{Draw Phase}
+
+The draw phase is not an especially deep part of the game, since both actions have
+reasonable value at most times. We simply added a few rules which prevent the AI
+from either drawing too many cards, or having too much Omnium. These resources are
+worth relatively little when the player is unable to spend them.
+
+\subsubsection{Discard Phase}
+
+Since the bonus for building eight modules is non-trivial, we added a few rules
+across the game phases to ensure that if the game is about to end, the AI
+will do its best to reach eight buildings as fast as possible. This will usually
+have the AI keeping cheap cards, and disregarding color synergy in favor of point
+efficiency.
+
+If such a situation is not near however, we implemented a rule for creating color
+synergies. Colored synergies are an important part of the game, since they
+can provide players with a steady income of Omnium. Therefore the heuristic AI
+tries to go for color synergies with its modules before the late game.
+
+\subsubsection{Power Phase}
+
+Only two colonists in the game have interactions in the power phase, but
+it is a~very important part of gameplay nonetheless. These two colonists
+can be extremely powerful and they can cause massive swings in tempo
+\footnote{Tempo is an unofficial term in card games referring to the flow of the game.
+If a~single player takes the lead early and stays in the lead consistently, we would
+call that a~play with a~lot of tempo.}.
+
+Both decision making rules for these colonists are similar in nature --- they attempt
+to find the target with the highest expected return for the power usage.
+This is done by counting the potential reward (resources of player we are trying
+to target) and subtracting from that the measure of uncertainty. The less information
+we have about the target's colonist, the more risk is involved in the play, and the
+expected return is lower. If the best
+expected return is small enough, the AI passes its turn. This is because of the risk
+of hitting an unintended target and actually making its own situation worse than if
+it had simply passed.
+
+\subsubsection{Build Phase}
+
+The rules for the build phase are in essence similar to those in the discard phase.
+This is not a~coincidence, in fact the discard phase and the build phase
+are probably the most tightly coupled phases in the game. Since there is a risk of
+having modules stolen from the hand by a Spy if the player lets the modules
+sit in his hand, many players will try to keep as few resources possible.
+They will instead try to spend them as fast as possible, since modules in the colony
+are theirs permanently. Things we discussed in the discard phase apply here as well.
+
+\autoref{algo:heur} shows high-level pseudocode for
 the implemented heuristic AI.
 
 \begin{figure}[ht]
@@ -98,7 +171,9 @@ else if game phase is "Build":
 \section{MaxN}
 \label{sec:algomaxn}
 
-The principles of the MaxN algorithm have been explained in \autoref{rw:maxn}. Therefore
+The principles of the MaxN algorithm have been discussed in \autoref{rw:maxn}. 
+However, the algorithm as presented in \autoref{rw:maxn} would not be applicable
+to a game with hidden information. Therefore
 this section will focus mainly on describing the adaptations made in order for it
 to function in an environment with imperfect information.
 
@@ -106,7 +181,12 @@ As adaptation to imperfect information, we used determinization to transform
 imperfect information states into perfect information states.
 \autoref{algo:maxndet} shows a code excerpt with the determinization usage.
 The adapted algorithm samples \texttt{DETERMINIZE\_COUNT} determinizations,
-and runs the regular MaxN algorithm for that determinization. The move suggested
+and runs the regular MaxN algorithm for that determinization. This means that during
+each determinization, our modified MaxN algorithm behaves exactly as the existing
+MaxN algorithm would. It traverses a~perfect-information game tree and uses a positional
+evaluation function to decide the optimal moves. Just like the regular MaxN,
+for each determinization, we get a final suggested move from the algorithm.
+The moves suggested
 by these runs are saved, and after all sampled determinizations are processed,
 the move chosen by the adapted algorithm is the move which was chosen as the best
 move the most often by the regular MaxN runs.
@@ -136,6 +216,56 @@ def pickAction(self, actualGameState):
 Values for the mentioned constants were selected as \texttt{DETERMINIZE\_COUNT = 10}
 and \texttt{SEARCH\_DEPTH = 7}. These were empirically selected to allow for decent
 response time when a move is requested.
+
+We also have not mentioned the used positional evaluation function that we used
+in the implementation of \texttt{MaxnIntelligence}. The chosen evaluation function
+is rather simple --- it tries to maximize the amount of points that the player has.
+It assigns the highest value to building modules, and to having the bonus for completing
+all eight buildings in the player's colony. This bonus, along with victory values of modules
+in the player's colony, count 1:1 towards the heuristic evaluation. Somewhat less value is
+given to having modules in the hand, and having Omnium, with their exact value being
+such that the value gained by having a module built is always greater than having
+it in the hand, and having the Omnium to build it. \autoref{algo:maxneval} shows
+the code for evaluation of a single player.
+
+\begin{figure}[hb]
+\begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+def evaluatePlayer(player):
+    value = 0
+
+    for module in player["Colony"]:
+        value += module["VictoryValue"]
+    value += 0.6 * len(player["Hand"])
+    value += 0.3 * player["Omnium"]
+    if len(player["Colony"]) == 8:
+        value += 4
+
+    return value
+\end{code}
+\caption{Positional evaluation function used for MaxN.}\label{algo:maxneval}
+\end{figure}
+
+Our adapted version of MaxN still has some potential issues however.
+Let us consider the issue of \emph{non-locality} --- the problem whereby
+certain game states are explored in spite of the fact that they will
+most likely be avoided by players. An example of this could be the following:
+our MaxN algorithm is picking a colonist, and after it picks, the Miner is among
+the colonists passed on to other players. Let us also assume that the other players
+have no blue modules built among them. In this situation,
+we might explore determinizations where a player has picked Miner as their colonist
+--- even if this would be the suboptimal play, since other colonists
+have more useful abilities in this scenario.
+
+We can also consider a situation where the best play would be denying an opponent
+an opportunity, rather than gaining value ourselves. An example of this in
+\emph{Colonizers} could be the following situation: our MaxN algorithm is picking
+a colonist, and it sees that all players except one have full hands, but one
+player's hand is empty. For the player with an empty hand, picking Spy as their
+colonist would be a very high value play, since it could mean up to a 10 card swing
+in their favor. A possible strategy to consider would be for MaxN to pick Spy itself,
+to prevent the other player from making this high value play. However, our verison
+of MaxN cannot explore the game tree with enough depth to be able to make these
+kinds of plays.
 
 \section{Information Set Monte Carlo Tree Search}
 

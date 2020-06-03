@@ -61,8 +61,10 @@ It is invoked via the command like with two arguments --- the first is a~number
 between 1 and 5, corresponding to the experiment number, and the second
 is the path to the Python executable to use when executing AI scripts.
 
+% TODO: verify where the JSON file is generated
 After the experiment is run, it will produce a JSON file containing the results
-of the experiment. This file is generated in the directory containing the executable.
+of the experiment. This file is generated in the directory where the experiments
+are running.
 \autoref{dd:experimentjson} shows the structure of these JSON files, with less
 important fields omitted for brevity. The JSON files associated with the five
 experiments are also located in the \texttt{Experiments} projects, namely in
