@@ -162,7 +162,7 @@ the aforementioned internal directory, which means that stand-alone AI scripts
 placed in this directory can import the file without issues. The problem comes
 with folder-based AIs, since Python unfortunately does not provide a~convenient way
 to import files which are higher in the file hierarchy. Therefore when copying
-AI folders with the GUI, the \texttt{AICore.py} file will automatically be complicated
+AI folders with the GUI, the \texttt{AICore.py} file will automatically be copied
 into the new AI's directory. This means that folder-based AIs for \emph{Colonizers}
 cannot contain a \texttt{AICore.py} file in the top level of their folder,
 since the file would be overwritten during copying. Alternatively, the folder
