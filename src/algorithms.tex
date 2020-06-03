@@ -38,7 +38,7 @@ This situation is extremely unlikely however.
 \label{sec:algoheur}
 
 The heuristic AI is intended to be the real baseline for other implemented AI algorithms.
-It comprises of a number of rules which determine the action to perform in a given
+It consists of a number of rules which determine the action to perform in a given
 game state. If no rules are applicable to a given state, the AI simply
 falls back to random choice. First, let us reason about why certain heuristic rules
 were chosen and what they mean.
@@ -263,7 +263,7 @@ a colonist, and it sees that all players except one have full hands, but one
 player's hand is empty. For the player with an empty hand, picking Spy as their
 colonist would be a very high value play, since it could mean up to a 10 card swing
 in their favor. A possible strategy to consider would be for MaxN to pick Spy itself,
-to prevent the other player from making this high value play. However, our verison
+to prevent the other player from making this high value play. However, our version
 of MaxN cannot explore the game tree with enough depth to be able to make these
 kinds of plays.
 
