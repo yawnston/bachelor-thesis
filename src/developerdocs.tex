@@ -7,7 +7,8 @@ In order to do development work on \emph{Colonizers}, the following software
 is required:
 \begin{itemize}
     \item .NET Core 3.1 SDK
-    \item Python 3.7
+    \item Python 3.7 (NOTE: there is an issue if you are using the embeddable
+        version of Python, please refer to \Cref{dd:embedpy} for more information)
     \item Node.js 10 and NPM 6.4.1
 \end{itemize}
 The game's UI is designed for a minimum screen resolution of 1920x1080 at
@@ -204,18 +205,18 @@ external dependencies. The game logic classes are separated into three categorie
         a particular board state. Every kind of action taken by players in the game
         has its own \texttt{Command} associated with it, marked by the
         \texttt{IGameAction} interface. These commands may be dispatched via
-        the mediator. Located in the \texttt{Commands} directory.
+        the mediator. They are located in the \texttt{Commands} directory.
     \item \texttt{CommandHandlers} --- classes which implement logic mutating
         the game board. For example, if we have a command representing the action
         of building a module, a \texttt{BuildModule} command will be dispatched
         via the mediator, and then handled by the \texttt{BuildModuleCommandHandler}.
         Command handlers only mutate the game state based on their input command,
-        they do not enumerate possible actions. Located in the \texttt{CommandHandlers}
-        directory.
+        they do not enumerate possible actions. They are located in the
+        \texttt{CommandHandlers} directory.
     \item \texttt{ActionGetters} --- these classes are responsible for
         enumerating the actions space. They receive an input game state,
         and from it they generate a list of actions which are legal
-        in this state. Located in the \texttt{ActionGetters} directory.
+        in this state. They are located in the \texttt{ActionGetters} directory.
 \end{itemize}
 
 Each \texttt{CommandHandler} has a reference to its associated \texttt{ActionGetters}.
@@ -519,6 +520,22 @@ shorthands for common operations. There is one worth mentioning however ---
 \texttt{getActionString(action)}. This function converts an action (as obtained from
 the \texttt{gameState["Actions"]} list) into the shorthand string format
 used by the \texttt{simulate(self, boardState, move)} method.
+
+\subsubsection{Issues with embeddable Python}
+\label{dd:embedpy}
+
+Embeddable versions of Python ignore \texttt{PYTHONPATH}, and this causes issues
+when running AI scripts. To avoid this issue, either use a regular Python installation,
+or add the lines shown in \Cref{dd:embedex} to the top of your AI script.
+
+\begin{figure}[ht]
+\begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+import sys
+sys.path += '.'
+\end{code}
+\caption{Workaround for issues with embeddable Python installations.}
+\label{dd:embedex}
+\end{figure}
 
 \subsection{Experiments}
 \label{chap:experimentdocs}

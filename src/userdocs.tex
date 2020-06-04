@@ -14,7 +14,8 @@ Also required is the following software:
 \begin{itemize}
     \item .NET Core 3.1 Runtime
     \item ASP.NET Core 3.1 Runtime
-    \item Python 3.7
+    \item Python 3.7 (NOTE: there is an issue if you are using the embeddable
+        version of Python, please refer to \Cref{dd:embedpy} for more information)
 \end{itemize}
 The game's UI is designed for a minimum screen resolution of 1920x1080 at
 100\% zoom level. It is not recommended to play the game on lower resolution
@@ -23,7 +24,10 @@ screens, since graphical errors may occur.
 \subsection{Installation}
 
 \emph{Colonizers} is distributed via an installer application, which is shown
-in \Cref{ud:installer}.
+in \Cref{ud:installer}. Note that when prompted to choose between a per-user
+installation and an installation for all users, you should choose the per-user
+installation unless you have a very good reason not to. Installing the application
+globally will mean permission issues every time the application is run.
 
 \begin{figure}[ht]
 \centerline{\mbox{\includegraphics[width=110mm]{installer}}}
