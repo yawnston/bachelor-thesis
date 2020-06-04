@@ -10,6 +10,9 @@ is required:
     \item Python 3.7
     \item Node.js 10 and NPM 6.4.1
 \end{itemize}
+The game's UI is designed for a minimum screen resolution of 1920x1080 at
+100\% zoom level. It is not recommended to play the game on lower resolution
+screens, since graphical errors may occur.
 
 In order to build and run \emph{Colonizers} in Electron, the Electron.NET CLI
 package is required. You may install this package as a .NET Core tool by running
@@ -29,15 +32,30 @@ but other software capable of debugging Python scripts is viable as well.
 \subsection{Project Structure}
 
 The entire game is contained in a .sln (solution) file, which is a file type used
-to organize projects in Visual Studio. This solution contains three projects:
+to organize projects in Visual Studio. This solution contains four projects:
 \begin{itemize}
     \item \texttt{AICore} --- project with the API for AI scripts and the AICore
         scripts themselves.
     \item \texttt{Desktop} --- project with the UI, consisting of an~Angular
-        web application and an ASP.NET Core Web API.
+        web application and an ASP.NET Core Web API. The Web API is the
+        \emph{ClientApp} subfolder of this project's folder.
+    \item \texttt{Game} --- C\# library project containing the game logic
+        and code responsible for communicating with Python AIs.
     \item \texttt{Experiments} --- console application project containing
         the experiment scenarios explored in this thesis.
 \end{itemize}
+
+The flow of data in the application starts with the UI, since all initiative starts
+with the user. The UI then uses the ASP.NET Core Web API to execute game logic.
+If required, game logic then talks to processes executing Python AI sripts.
+This flow can be seen in \Cref{dd:sequence}.
+
+\begin{figure}[ht]
+\centerline{\mbox{\includegraphics[width=130mm]{colonizers-sequence}}}
+\caption{\emph{Colonizers} sequence diagram.}\label{dd:sequence}
+\end{figure}
+
+The aforementioned components will be discussed in more detail in the following subsections.
 
 \subsection{Game Engine}
 
@@ -50,7 +68,18 @@ WORK IN PROGRESS
 
 \subsection{User Interface}
 
-WORK IN PROGRESS
+\emph{Colonizers} uses Electron as a means to run the game as a desktop application,
+since the game is developed using web technologies. Specifically, it uses the
+Electron.NET library, which provides an access to the Electron APIs to C\# applications,
+and it also facilitates usage of Electron's build tools to package C\# applications.
+C\# and the whole .NET platform in general still do not have a widely-used cross-platform
+UI framework, therefore Electron was a good fit for this project.
+
+The UI for \emph{Colonizers} is an Angular application, which is then served inside
+Electron. Electron then uses the Chromium rendering engine and Node.js in the background.
+The Angular application allows configuration of the game, it handles presentation
+of game state to the user, and it is responsible for communicating with the
+ASP.NET Core Web API.
 
 \subsection{Experiments}
 \label{chap:experimentdocs}

@@ -60,8 +60,15 @@ The choice of Python for AI scripts was an easy one, considering most machine le
 is done with Python today. It is also a~rather easy language to learn and understand.
 
 Angular was chosen as the SPA framework because it is a~popular and robust solution.
+Its state management system capabilities lend themselves well to implementing
+a UI with many pieces which depend on one another in complex ways.
+One downside of Angular is that since it is a web application framework,
+its real-time performance is less than ideal. This negative is essentially void
+when applied to \emph{Colonizers} however, since our game is a turn-based board game.
+Therefore our focus when choosing a framework was mainly on having a robust
+solution which is easy to develop and maintain.
 There are multiple such frameworks, notably React and Vue, which would have also
-made viable choices. However, Angular is simply the SPA framework the author
+been viable choices. However, Angular is simply the SPA framework the author
 is the most familiar with.
 
 Another design consideration is the design of the API used to communicate between
@@ -94,7 +101,6 @@ has about the previous player's colonist (one of two possible colonists).
 Other utility methods included simplify working with the game state dictionary by
 providing methods for commonly performed operations.
 
-\clearpage
 \Cref{framework:randomai} shows the implementation of an~AI for \emph{Colonizers}.
 This AI simply chooses random moves.
 
