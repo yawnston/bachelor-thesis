@@ -120,12 +120,141 @@ for easy registration of all its components into DI.
 
 \subsubsection{Game Engine Library}
 
+All game logic is implemented in the \texttt{Game} C\# library. This
+makes game logic a reusable unit, which was useful during the implementation of
+the experiment project.
 
+First, we will discuss the representation of game state. The root
+of the model class hierarchy is the \texttt{GameState} class, shown in \Cref{dd:gamestate}.
 
-\subsection{Artificial Intelligence}
-\label{chap:aidev}
+\begin{figure}[ht]
+\begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+/// <summary>
+/// Indicates whether the game is over in this state
+/// </summary>
+public bool GameOver $\{$ get; set; $\}$ = false;
 
-WORK IN PROGRESS
+/// <summary>
+/// If the game is over, contains game results
+/// </summary>
+public GameEndInfo GameEndInfo $\{$ get; set; $\}$
+
+/// <summary>
+/// The state of the game board
+/// </summary>
+public BoardState BoardState $\{$ get; set; $\}$
+
+/// <summary>
+/// Things the current player can do on their turn
+/// </summary>
+public IList<IGameAction> Actions $\{$ get; set; $\}$
+\end{code}
+\caption{GameState class from the game engine library.}\label{dd:gamestate}
+\end{figure}
+
+This object represents all game state data during a single game of \texttt{Colonizers}.
+Therefore it (or modified verisons of it) is used for communicating the game state
+to other components, be it the UI or AI scripts. Note that it also contains information
+about whether the game ended and how it ended. Lastly, it also contains a list of possible
+actions that could be taken from the current game state. This allows AIs to easily
+work with the game state without having to worry about enumerating the action
+space themselves. We also include a simplified version of the \texttt{BoardState} class
+for reference,
+since it contains all data concerned with the actual state of the board, as seen
+in \Cref{dd:boardstate}.
+
+\begin{figure}[ht]
+\begin{code}
+    public enum Phase { ColonistPick, Draw, Discard, Power, Build }
+    public IList<PlayerInfo> Players { get; set; }
+    public IReadOnlyList<Colonist> PlayableColonists { get; set; }
+    public IList<Colonist> AvailableColonists { get; set; }
+    public List<Module> Deck { get; set; }
+    public IReadOnlyList<Module> StartingDeck { get; set; }
+    public IList<Module> DiscardTempStorage { get; set; }
+    public int PlayerTurn { get; set; }
+    public Phase GamePhase { get; set; }
+\end{code}
+\caption{BoardState model class (simplified).}\label{dd:boardstate}
+\end{figure}
+
+A noteworthy property of the \texttt{BoardState} class is \texttt{DiscardTempStorage}.
+This propery is used to temporarily hold modules after a player has chosen to draw
+modules from the deck, but before they have decided which one to keep.
+
+Another interesting part of the game engine is the way the game logic is implemented.
+The game has multiple turns in every round and multiple phases in each turn,
+organized in a way that resembles a state machine. Maintaining such a class hierarchy
+would not be a viable strategy, since cyclic referenes would be an inevitability.
+In order to avoid dependency hell and make the code structure easier to maintain
+and understand, we have employed the mediator pattern, facilitated by the
+\texttt{MediatR} library. This allows us to separate logic pertaining
+to particular game phases into their own, self-contained units without complicated
+external dependencies. The game logic classes are separated into three categories:
+\begin{itemize}
+    \item \texttt{Commands} --- the basic models of actions to perform on
+        a particular board state. Every kind of action taken by players in the game
+        has its own \texttt{Command} associated with it, marked by the
+        \texttt{IGameAction} interface. These commands may be dispatched via
+        the mediator.
+    \item \texttt{CommandHandlers} --- classes which implement logic mutating
+        the game board. For example, if we have a command representing the action
+        of building a module, a \texttt{BuildModule} command will be dispatched
+        via the mediator, and then handled by the \texttt{BuildModuleCommandHandler}.
+        Command handlers only mutate the game state based on their input command,
+        they do not enumerate possible actions. 
+    \item \texttt{ActionGetters} --- these classes are responsible for
+        enumerating the actions space. They receive an input game state,
+        and from it they generate a list of actions which are legal
+        in this state. 
+\end{itemize}
+
+Each \texttt{CommandHandler} has a reference to its associated \texttt{ActionGetters}.
+If we imagine this situation in a state machine context, the \texttt{CommandHandlers}
+handle movement between states, and \texttt{ActionGetters} are responsible for
+finding out which states we can move to next afterwards. The whole game logic
+system consists of pure classes and functions, meaning for the same input,
+they provide the same output. This is a crucial property of this design,
+considering the game logic is quite complex in certain places. It gives the code
+consistency between runs, and makes it easy to debug and understand.
+
+We can examine a high-level method which processes a single turn of the game
+in \Cref{dd:engineturn}. We can see that given a game state and a list of players,
+we first ask the current player to choose a move. After they have selected
+a move, the appropriate \texttt{Command} is passed into the game logic
+structure through the mediator. The structure then returns a new game state
+along with a list of actions possible in this new state.
+
+\begin{figure}[ht]
+\begin{code}
+public async Task<GameState> ProcessTurn(GameState gameState, 
+    IReadOnlyList<IPlayer> players)
+{
+    var boardState = gameState.BoardState;
+    IPlayer currentPlayer = players[boardState.PlayerTurn - 1];
+    int moveId = await currentPlayer.GetMove(gameState, resolver);
+    var selectedMove = gameState.Actions[moveId];
+    return await resolver.Resolve(selectedMove);
+}
+\end{code}
+\caption{Processing of a single game turn.}\label{dd:engineturn}
+\end{figure}
+
+Lastly, the game engine library contains the code responsible for communicating
+with the Python AI implementations. This communication is done
+via named pipes. When a game is starting, a named pipe is created for each
+AI. The AI is then started as a separate process using the configured
+Python executable path. This process is passed its pipe name
+as an argument. When the AI starts up, it connects to the pipe and starts listening.
+The game engine will send a request for a decision to be made, and the AI may
+start deciding. When the AI chooses a move, the move is returned through
+the same pipe. The pipe is also used for other communication between
+the AI and the game engine, notably for requesting determinization and
+simulating moves. It is worth mentioning that due to the fact that
+the named pipes have pre-defined names, it is not currently possible
+to run multiple instanes of the game on the same machine. We say currently,
+since implementing a mechanism for randomizing the pipe names would
+not be a very complicated extension of the library.
 
 \subsection{User Interface}
 
@@ -168,7 +297,7 @@ for changes and re-compile only changed application files.
 
 %TODO: enabling top bar and devtools in Electron
 
-\begin{figure}[hb]
+\begin{figure}[ht]
 \begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
 public async Task<bool> AddSingleScript()
 $\{$
@@ -265,7 +394,7 @@ The excerpt is from \texttt{GameComponent}'s template, and it demonstrates how
 it binds one of its own fields as an input for the \texttt{DiscardComponent},
 and that it is listening for events emitted by it.
 
-\begin{figure}[ht]
+\begin{figure}[h!]
 \begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
 <div *ngIf="isWaitingForHumanPlayer && isDiscardPhase()">
     <app-discard [gameState]="gameState"
@@ -286,6 +415,7 @@ and API calls away from components. Therefore, all code pertaining to
 communication with the ASP.NET Core Web API is contained within
 the two service classes --- \texttt{GameService} and \texttt{ScriptsService}.
 
+\clearpage
 \subsection{Experiments}
 \label{chap:experimentdocs}
 
