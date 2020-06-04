@@ -1,6 +1,6 @@
 \chapter{Related Work}
 
-Before we discuss the design of \emph{Colonizers} and its implmentation,
+Before we discuss the design of \emph{Colonizers} and its implementation,
 let us first make an overview of existing related work. This chapter will
 demonstrate why existing frameworks would not be a~good fit for \emph{Colonizers}.
 We are interested mainly in two areas here:
@@ -43,7 +43,7 @@ for i_episode in range(20):
             break
 env.close()
 \end{code}
-\caption{OpenAI Gym --- AI implementaion.}\label{figrw:gym}
+\caption{OpenAI Gym --- AI implementation.}\label{figrw:gym}
 \end{figure}
 
 The~environment being solved (\emph{CartPole-v0}) is a~task where the~AI must balance a~pole
@@ -319,7 +319,7 @@ def SO-ISMCTS($[s_{0}]^{\sim1}, n$):
         
         # Selection
         repeat
-            descend the tree (restricted to nodes/acitons compatible 
+            descend the tree (restricted to nodes/actions compatible 
             with $d$) using the chosen bandit algorithm
         until a node $v$ is reached such that some action from $v$ leads
         to a player 1 information set which is not

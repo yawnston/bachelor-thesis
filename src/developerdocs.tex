@@ -46,7 +46,7 @@ to organize projects in Visual Studio. This solution contains four projects:
         scripts themselves.
     \item \texttt{Desktop} --- project with the UI, consisting of an~Angular
         web application and an ASP.NET Core Web API. The Web API is the
-        \emph{ClientApp} subfolder of this project's folder.
+        \emph{ClientApp} subdirectory of this project's directory.
     \item \texttt{Game} --- C\# library project containing the game logic
         and code responsible for communicating with Python AIs.
     \item \texttt{Experiments} --- console application project containing
@@ -55,7 +55,7 @@ to organize projects in Visual Studio. This solution contains four projects:
 
 The flow of data in the application starts with the UI, since all initiative starts
 with the user. The UI then uses the ASP.NET Core Web API to execute game logic.
-If required, game logic then talks to processes executing Python AI sripts.
+If required, game logic then talks to processes executing Python AI scripts.
 This flow can be seen in \Cref{dd:sequence}.
 
 \begin{figure}[ht]
@@ -81,7 +81,7 @@ such as formulating method calls to the game engine. The following controllers
 are present in the project:
 \begin{itemize}
     \item \texttt{GameController} is responsible for manipulating game state.
-        It contains endpoints for creating new games, perfoming actions during
+        It contains endpoints for creating new games, performing actions during
         gameplay, and for cleaning up after a game is finished.
     \item \texttt{AIController} provides methods for configuring the AI
         scripts in \emph{Colonizers} --- it facilitates adding new AIs
@@ -154,7 +154,7 @@ public IList<IGameAction> Actions $\{$ get; set; $\}$
 \end{figure}
 
 This object represents all game state data during a single game of \texttt{Colonizers}.
-Therefore it (or modified verisons of it) is used for communicating the game state
+Therefore it (or modified versions of it) is used for communicating the game state
 to other components, be it the UI or AI scripts. Note that it also contains information
 about whether the game ended and how it ended. Lastly, it also contains a list of possible
 actions that could be taken from the current game state. This allows AIs to easily
@@ -180,13 +180,13 @@ in \Cref{dd:boardstate}.
 \end{figure}
 
 A noteworthy property of the \texttt{BoardState} class is \texttt{DiscardTempStorage}.
-This propery is used to temporarily hold modules after a player has chosen to draw
+This property is used to temporarily hold modules after a player has chosen to draw
 modules from the deck, but before they have decided which one to keep.
 
 Another interesting part of the game engine is the way the game logic is implemented.
 The game has multiple turns in every round and multiple phases in each turn,
 organized in a way that resembles a state machine. Maintaining such a class hierarchy
-would not be a viable strategy, since cyclic referenes would be an inevitability.
+would not be a viable strategy, since cyclic references would be an inevitability.
 In order to avoid dependency hell and make the code structure easier to maintain
 and understand, we have employed the mediator pattern, facilitated by the
 \texttt{MediatR} library. This allows us to separate logic pertaining
@@ -253,7 +253,7 @@ the same pipe. The pipe is also used for other communication between
 the AI and the game engine, notably for requesting determinization and
 simulating moves. It is worth mentioning that due to the fact that
 the named pipes have pre-defined names, it is not currently possible
-to run multiple instanes of the game on the same machine. We say currently,
+to run multiple instances of the game on the same machine. We say currently,
 since implementing a mechanism for randomizing the pipe names would
 not be a very complicated extension of the library.
 
@@ -281,7 +281,7 @@ to run and debug it without running it in Electron. The source code for this pro
 contains launch settings pre-configured for Visual Studio 2019 in order to accomplish
 exactly this. A sidenote is that while running outside Electron, the application
 does not have access to Electron APIs. \emph{Colonizers} uses the File Dialog
-API multiple times, therefore this functionality will be unavaliable in this case.
+API multiple times, therefore this functionality will be unavailable in this case.
 Interaction with the Electron APIs is always preceded by a check whether
 the application instance is running inside Electron, therefore calls
 to methods which use Electron APIs will not cause exceptions. We can see
@@ -476,10 +476,9 @@ It is invoked via the command line with two arguments --- the first is a~number
 between 1 and 5, corresponding to the experiment number, and the second
 is the path to the Python executable to use when executing AI scripts.
 
-% TODO: verify where the JSON file is generated
 After the experiment is run, it will produce a JSON file containing the results
-of the experiment. This file is generated in the directory where the experiments
-are running.
+of the experiment. This file is generated in the directory where the \texttt{Experiments}
+project is run from.
 \Cref{dd:experimentjson} shows the structure of these JSON files, with less
 important fields omitted for brevity. The JSON files associated with the five
 experiments are also located in the \texttt{Experiments} projects, namely in
