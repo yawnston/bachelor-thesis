@@ -32,7 +32,7 @@ but other software capable of debugging Python scripts is viable as well.
 The project can be run by navigating to the project directory of the \texttt{Desktop} project
 and running the command \texttt{electronize start}. This will build the application
 and start it inside Electron. Building the application is also done with the
-\texttt{electronize} command-line tool. if we want to build \emph{Colonizers}
+\texttt{electronize} command-line tool. If we want to build \emph{Colonizers}
 for Windows 64-bit, we would use the command \texttt{electronize build /target win}.
 Further documentation for the \texttt{electronize} command-line tool
 is available in the documentation for the Electron.NET project \cite{Electronnet}.
@@ -40,7 +40,7 @@ is available in the documentation for the Electron.NET project \cite{Electronnet
 \subsection{Project Structure}
 
 The entire game is contained in a .sln (solution) file, which is a file type used
-to organize projects in Visual Studio. This solution contains four projects:
+to organize projects in Visual Studio. This solution contains five projects:
 \begin{itemize}
     \item \texttt{AICore} --- project with the API for AI scripts and the AICore
         scripts themselves.
@@ -51,6 +51,9 @@ to organize projects in Visual Studio. This solution contains four projects:
         and code responsible for communicating with Python AIs.
     \item \texttt{Experiments} --- console application project containing
         the experiment scenarios explored in this thesis.
+    \item \texttt{ColonizersTests} --- unit test project using xUnit
+        as the testing framework. Tests can be run with the command
+        \texttt{dotnet test}, or through Visual Studio 2019's test explorer.
 \end{itemize}
 
 The flow of data in the application starts with the UI, since all initiative starts
@@ -78,7 +81,8 @@ State Transfer) API endpoints. These endpoints are then called by the Angular
 application. In order to promote code reusability, functionality was extracted
 from controller methods into separate services, which perform more complex operations
 such as formulating method calls to the game engine. The following controllers
-are present in the project:
+are present in the project (in the \texttt{Controllers} directory at the top level
+of the project directory):
 \begin{itemize}
     \item \texttt{GameController} is responsible for manipulating game state.
         It contains endpoints for creating new games, performing actions during
@@ -88,7 +92,8 @@ are present in the project:
         and changing the Python executable path used to execute AI scripts.
 \end{itemize}
 
-The following services are present in the Web API project:
+The following services are present in the Web API project (in the \texttt{Services}
+directory at the top level of the project directory):
 \begin{itemize}
     \item \texttt{FileDialogService} uses the Electron API to open
         file dialogs. These are used to select AIs to add and to
@@ -127,6 +132,7 @@ the experiment project.
 
 First, we will discuss the representation of game state. The root
 of the model class hierarchy is the \texttt{GameState} class, shown in \Cref{dd:gamestate}.
+This class may be found in the root of the \texttt{Game} project.
 
 \begin{figure}[ht]
 \begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
@@ -162,7 +168,8 @@ work with the game state without having to worry about enumerating the action
 space themselves. We also include a simplified version of the \texttt{BoardState} class
 for reference,
 since it contains all data concerned with the actual state of the board, as seen
-in \Cref{dd:boardstate}.
+in \Cref{dd:boardstate}. This class is also located in the root folder
+of the \texttt{Game} project.
 
 \begin{figure}[ht]
 \begin{code}
@@ -197,17 +204,18 @@ external dependencies. The game logic classes are separated into three categorie
         a particular board state. Every kind of action taken by players in the game
         has its own \texttt{Command} associated with it, marked by the
         \texttt{IGameAction} interface. These commands may be dispatched via
-        the mediator.
+        the mediator. Located in the \texttt{Commands} directory.
     \item \texttt{CommandHandlers} --- classes which implement logic mutating
         the game board. For example, if we have a command representing the action
         of building a module, a \texttt{BuildModule} command will be dispatched
         via the mediator, and then handled by the \texttt{BuildModuleCommandHandler}.
         Command handlers only mutate the game state based on their input command,
-        they do not enumerate possible actions. 
+        they do not enumerate possible actions. Located in the \texttt{CommandHandlers}
+        directory.
     \item \texttt{ActionGetters} --- these classes are responsible for
         enumerating the actions space. They receive an input game state,
         and from it they generate a list of actions which are legal
-        in this state. 
+        in this state. Located in the \texttt{ActionGetters} directory.
 \end{itemize}
 
 Each \texttt{CommandHandler} has a reference to its associated \texttt{ActionGetters}.
@@ -267,7 +275,9 @@ C\# and the whole .NET platform in general still do not have a widely-used cross
 UI framework, therefore Electron was a good fit for this project.
 
 The UI for \emph{Colonizers} is an Angular application, which is then served inside
-Electron. Electron then uses the Chromium rendering engine and Node.js in the background.
+Electron. This application is located in the \texttt{ClientApp} directory
+in the \texttt{Desktop} project directory.
+Electron then uses the Chromium rendering engine and Node.js in the background.
 The Angular application allows configuration of the game, it handles presentation
 of game state to the user, and it is responsible for communicating with the
 ASP.NET Core Web API.
@@ -395,7 +405,7 @@ The excerpt is from \texttt{GameComponent}'s template, and it demonstrates how
 it binds one of its own fields as an input for the \texttt{DiscardComponent},
 and that it is listening for events emitted by it.
 
-\begin{figure}[h!]
+\begin{figure}[ht]
 \begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
 <div *ngIf="isWaitingForHumanPlayer && isDiscardPhase()">
     <app-discard [gameState]="gameState"
@@ -421,7 +431,8 @@ the two service classes --- \texttt{GameService} and \texttt{ScriptsService}.
 In the previous subsection, we have already discussed the communication between
 game engine and the AI from the game engine's point of view. In this subsection,
 we will examine the other side. The API provided to AIs is contained
-within the \texttt{AICore.py} source file, in the abstract class \texttt{AIBase}.
+within the \texttt{AICore.py} source file (located in the root folder of the
+\texttt{AICore} project), in the abstract class \texttt{AIBase}.
 This class is meant to be a base class for all AI implementations
 added to the game. It provides the AIs with the following functionality:
 \begin{itemize}
@@ -467,6 +478,48 @@ run with the Python interpreter, then skip the line creating the actual process
 and instead run your own process in debug mode in your development environment
 of choice.
 
+The following is a description of the API provided by the \texttt{AIBase}
+class:
+\begin{itemize}
+    \item \texttt{messageCallback(self, gameState)} --- abstract method, must be implemented
+        in descendants. This method is called by the framework when it is the AI's
+        turn in the game, and its response is required. The gameState object represents
+        the current game state (the object will be described later in this section).
+        The expected return value is a string containing a single number,
+        corresponding to the index of the chosen action. The by index we mean the zero-based
+        index of the chosen action in the \texttt{gameState["Actions"]} list.
+    \item \texttt{determinize(self)} --- uses the information set stored by the game
+        engine to produce a determinized version of the current game state.
+        The return value is the determinized version with all hidden information
+        revealed.
+    \item \texttt{simulate(self, boardState, move)} --- simulates the given move
+        on the given board state, and returns the new game state. The \texttt{move}
+        parameter must be a string representation of an action, following the specific
+        format returned by the \texttt{getActionString(action)} function
+        of the \texttt{AICore.py} file.
+    \item \texttt{run(self, pipeName)} --- initializes the communication
+        with the game engine. The \texttt{pipeName} parameter is passed to the AI
+        script as the only argument, therefore it is located at \texttt{sys.argv[1]}
+        in the main AI file. A typical usage pattern is shown in \Cref{dd:airun}
+\end{itemize}
+
+\begin{figure}[ht]
+\begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+if \_\_name\_\_ == "\_\_main\_\_":
+    ai = ISMCTS\_AI() \# Inherits from AIBase
+    ai.run(sys.argv[1])
+\end{code}
+\caption{Common usage scenario of the \texttt{run(self, pipeName)} method.}
+\label{dd:airun}
+\end{figure}
+
+There are a number of other utility functions in the \texttt{AICore.py} file,
+however most of them are not worth mentioning here, since they are simply one line
+shorthands for common operations. There is one worth mentioning however ---
+\texttt{getActionString(action)}. This function converts an action (as obtained from
+the \texttt{gameState["Actions"]} list) into the shorthand string format
+used by the \texttt{simulate(self, boardState, move)} method.
+
 \subsection{Experiments}
 \label{chap:experimentdocs}
 
@@ -475,14 +528,20 @@ project of the \texttt{Colonizers} solution. It is a C\# console application pro
 It is invoked via the command line with two arguments --- the first is a~number
 between 1 and 5, corresponding to the experiment number, and the second
 is the path to the Python executable to use when executing AI scripts.
+Note that the attachments to this thesis do not contain a binary
+for the \texttt{Experiments} project, therefore you will have to build and
+run it yourself. This may be done by installing the required software for
+developing \emph{Colonizers} mentioned in this chapter, navigating to the
+\texttt{Experiments} project folder, and running the command \texttt{dotnet run},
+followed by the parameters required by the program.
 
 After the experiment is run, it will produce a JSON file containing the results
 of the experiment. This file is generated in the directory where the \texttt{Experiments}
 project is run from.
 \Cref{dd:experimentjson} shows the structure of these JSON files, with less
 important fields omitted for brevity. The JSON files associated with the five
-experiments are also located in the \texttt{Experiments} projects, namely in
-the \texttt{Results} folder. They were added there for reference, since
+experiments are also located in the \texttt{Results} folder of the \texttt{Experiments}
+project. They were added there for reference, since
 some experiments may take tens of hours to run even on reasonably fast
 machines. Be aware that a simple diff of the JSON result files
 is not sufficient for determining whether or not a given experiment was successfully
@@ -508,9 +567,11 @@ $\}$
 \caption{Experiment result JSON file structure (simplified).}\label{dd:experimentjson}
 \end{figure}
 
-The class \texttt{Scenarios} contains the setup for the experiments,
+The class \texttt{Scenarios} contains the configuration and setup for the experiments,
 and each scenario then calls \texttt{ExperimentRunner} to performed
-the experiment itself.
+the experiment itself. There is no need to configure anything more than
+passing the program the required parameters, the experiment scenarios
+are set up exactly as they were performed by the author.
 
 A noteworthy point is the implementation of the shuffling of players between games.
 Since the game engine already possessed an implementation of the Fisher-Yates Shuffle
