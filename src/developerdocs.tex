@@ -37,6 +37,9 @@ and start it inside Electron. Building the application is also done with the
 for Windows 64-bit, we would use the command \texttt{electronize build /target win}.
 Further documentation for the \texttt{electronize} command-line tool
 is available in the documentation for the Electron.NET project \cite{Electronnet}.
+Among other things, the CLI can also produce Win32 builds of the application
+with the following command:
+\texttt{electronize build /target custom win7-x86;win /electron-arch ia32}.
 
 \subsection{Project Structure}
 
@@ -307,8 +310,6 @@ command also has a useful option --- \texttt{electronize start /watch}
 which will watch application files
 for changes and re-compile only changed application files.
 
-%TODO: enabling top bar and devtools in Electron
-
 \begin{figure}[ht]
 \begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
 public async Task<bool> AddSingleScript()
@@ -527,6 +528,8 @@ used by the \texttt{simulate(self, boardState, move)} method.
 Embeddable versions of Python ignore \texttt{PYTHONPATH}, and this causes issues
 when running AI scripts. To avoid this issue, either use a regular Python installation,
 or add the lines shown in \Cref{dd:embedex} to the top of your AI script.
+However, editing the scripts in the aforementioned way sometimes still does not fix the issue.
+The only sure way to get rid of the problem is to use a regular Python installation.
 
 \begin{figure}[ht]
 \begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]

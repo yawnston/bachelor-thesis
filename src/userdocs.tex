@@ -19,35 +19,23 @@ Also required is the following software:
 \end{itemize}
 The game's UI is designed for a minimum screen resolution of 1920x1080 at
 100\% zoom level. It is not recommended to play the game on lower resolution
-screens, since graphical errors may occur.
+screens, since graphical errors may occur. If the user does not have access
+to a screen of this resolution, they may use the top application
+menu to zoom out the view. Zooming out the view far enough will get rid
+of any visual issues.
 
 \subsection{Installation}
 
-\emph{Colonizers} is distributed via an installer application, which is shown
-in \Cref{ud:installer}. Note that when prompted to choose between a per-user
-installation and an installation for all users, you should choose the per-user
-installation unless you have a very good reason not to. Installing the application
-globally will mean permission issues every time the application is run.
-
-\begin{figure}[ht]
-\centerline{\mbox{\includegraphics[width=110mm]{installer}}}
-\caption{\emph{Colonizers} installer.}\label{ud:installer}
-\end{figure}
+\emph{Colonizers} is distributed via installer. This installer
+will automatically install the game on a per-user basis.
+The default installation folder for the game is
+\texttt{<username>/AppData/Local/Programs/Colonizers}.
+When the installer is finished, it will launch the game.
 
 The installer is an executable named \texttt{Colonizers Setup $x$.$y$.$z$.exe},
-where $x$, $y$ and $z$ are placeholders for application versions. During installation,
-the user will be asked whether they wish to install the application only for themselves,
-or for all users of the computer. We recommend installing the application
-only for the current user, since it does not require elevation. The installer
-also allows the user to configure the installation directory,
-as shown in \Cref{ud:installpath}.
+where $x$, $y$ and $z$ are placeholders for application versions. 
 
-\begin{figure}[ht]
-\centerline{\mbox{\includegraphics[width=110mm]{installpath}}}
-\caption{Choosing the installation path in the installer.}\label{ud:installpath}
-\end{figure}
-
-When the installation is finished, the application may be launched from the specified
+When the installation is finished, the application may be launched from the installation
 directory. The installer also adds \emph{Colonizers} into the Start menu, and creates
 a~desktop shortcut for the game.
 
@@ -344,5 +332,15 @@ Here, the player may either click \emph{OK} to go back to the game configuration
 screen, or they may simply close the dialog and spend time looking at the final
 game board state. When the user wishes to return to the game configuration screen,
 they may press the \emph{Abandon Game} button to do so.
+
+Some dialogs which present the player with choices can sometimes cover
+useful information on the screen. For this purpose, there is a button on the top
+of the screen used to show and hide the decision dialogs. This button is shown in
+\Cref{ud:showhide}
+
+\begin{figure}[ht]
+\centerline{\mbox{\includegraphics[width=40mm]{showhide}}}
+\caption{Button for toggling dialog presence.}\label{ud:showhide}
+\end{figure}
 
 \clearpage
