@@ -29,6 +29,14 @@ extremely useful with Electron.NET.
 For developing and debugging Python AI scripts, the author used Visual Studio Code,
 but other software capable of debugging Python scripts is viable as well.
 
+The project can be run by navigating to the project directory of the \texttt{Desktop} project
+and running the command \texttt{electronize start}. This will build the application
+and start it inside Electron. Building the application is also done with the
+\texttt{electronize} command-line tool. if we want to build \emph{Colonizers}
+for Windows 64-bit, we would use the command \texttt{electronize build /target win}.
+Further documentation for the \texttt{electronize} command-line tool
+is available in the documentation for the Electron.NET project \cite{Electronnet}.
+
 \subsection{Project Structure}
 
 The entire game is contained in a .sln (solution) file, which is a file type used
@@ -59,7 +67,60 @@ The aforementioned components will be discussed in more detail in the following 
 
 \subsection{Game Engine}
 
-WORK IN PROGRESS
+This subsection will discuss not only the C\# library implementing the game logic,
+but also the ASP.NET Core Web API, since the library is provided to the user Interface
+through Web API calls.
+
+\subsubsection{ASP.NET Core Web API}
+
+The Web API consists of controllers, which define REST (Representational
+State Transfer) API endpoints. These endpoints are then called by the Angular
+application. In order to promote code reusability, functionality was extracted
+from controller methods into separate services, which perform more complex operations
+such as formulating method calls to the game engine. The following controllers
+are present in the project:
+\begin{itemize}
+    \item \texttt{GameController} is responsible for manipulating game state.
+        It contains endpoints for creating new games, perfoming actions during
+        gameplay, and for cleaning up after a game is finished.
+    \item \texttt{AIController} provides methods for configuring the AI
+        scripts in \emph{Colonizers} --- it facilitates adding new AIs
+        and changing the Python executable path used to execute AI scripts.
+\end{itemize}
+
+The following services are present in the Web API project:
+\begin{itemize}
+    \item \texttt{FileDialogService} uses the Electron API to open
+        file dialogs. These are used to select AIs to add and to
+        configure the Python executable path.
+    \item \texttt{GameService} makes calls to the game engine library.
+        It is responsible for configuring and managing.
+    \item \texttt{PlayerService} is responsible for the creation of player
+        objects. Since there are three different types of players
+        in \emph{Colonizers} (human player, AI script player and an AI folder player),
+        their creation is not trivial. Therefore this logic was extracted to this
+        service.
+    \item \texttt{PythonExecutableService} is responsible for managing
+        the path to the used Python executable. Selecting the path every
+        time the application restarts would be very inconvenient, therefore
+        the application remembers the configured path. This path is stored
+        in on disk in the game's installation folder.
+    \item \texttt{StateService} only serves to store game state information
+        in between API calls from the UI application. This avoids
+        unnecessary transfer of JSON data containing the entire game
+        state with every API call.
+\end{itemize}
+
+The ASP.NET Core Web API also sets up DI (dependency injection) for both itself and
+the game engine. ASP.NET Core provides its own DI framework
+which is used in this application. The DI is configured in the
+\texttt{ConfigureServices} method of the \texttt{Startup} class.
+The game engine provides an extension method \texttt{AddColonizersGame}
+for easy registration of all its components into DI.
+
+\subsubsection{Game Engine Library}
+
+
 
 \subsection{Artificial Intelligence}
 \label{chap:aidev}
@@ -96,6 +157,17 @@ the application instance is running inside Electron, therefore calls
 to methods which use Electron APIs will not cause exceptions. We can see
 such a guard for Electron presence in \Cref{dd:electronguard}.
 
+It is also possible to debug the application while it is running inside Electron.
+The command \texttt{electronize start} will launch the application
+inside Electron when run. It is then possible to attach to the application's
+process in Visual Studio 2019. This allows us to debug code which uses Electron
+API calls, which is not possible when not running in Electron. The mentioned
+command also has a useful option --- \texttt{electronize start /watch}
+which will watch application files
+for changes and re-compile only changed application files.
+
+%TODO: enabling top bar and devtools in Electron
+
 \begin{figure}[hb]
 \begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
 public async Task<bool> AddSingleScript()
@@ -125,6 +197,11 @@ The source code for the Angular application is written in TypeScript, CSS and HT
 The HTML used is not pure HTML, rather the HTML files are Angular templates.
 Angular Templates are a way to insert data into markup seamlessly.
 The TypeScript files are transpiled to JavaScript at build-time.
+We use Angular in a client-side mode, whereby the source files are compiled
+ahead of time, and are delivered to the client on-demand. Angular also
+offers a server-side rendering option, allowing to offload some work
+from clients onto servers. However, due to the fact that both client and server
+run on the same machine in \emph{Colonizers}, this option was not used.
 
 The most important building blocks of Angular are \emph{Components}.
 Components control the view presented to the user, and they prepare
@@ -201,9 +278,14 @@ and that it is listening for events emitted by it.
 
 These features are the core of how the UI application is built --- it is based on
 a~divide-and-conquer principle, where the entire view is composed of smaller components,
-which are in turn composed of even smaller components. 
+which are in turn composed of even smaller components.
 
-\clearpage
+Another notable building block of \texttt{Colonizers} is the usage of Angular
+services. A service in Angular is meant to be a way to abstract data manipulation
+and API calls away from components. Therefore, all code pertaining to
+communication with the ASP.NET Core Web API is contained within
+the two service classes --- \texttt{GameService} and \texttt{ScriptsService}.
+
 \subsection{Experiments}
 \label{chap:experimentdocs}
 
