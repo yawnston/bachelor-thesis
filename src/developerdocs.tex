@@ -81,6 +81,129 @@ The Angular application allows configuration of the game, it handles presentatio
 of game state to the user, and it is responsible for communicating with the
 ASP.NET Core Web API.
 
+In order to do development work on the UI, it is recommended that you use
+Visual Studio 2019. It has a very useful feature whereby it allows you to debug
+both JavaScript and C\# code at the same time in the same project. Since the Angular
+application is located in the same project as the Web API, this is an invaluable
+feature. Since the UI is an Angular application, naturally it is possible
+to run and debug it without running it in Electron. The source code for this project
+contains launch settings pre-configured for Visual Studio 2019 in order to accomplish
+exactly this. A sidenote is that while running outside Electron, the application
+does not have access to Electron APIs. \emph{Colonizers} uses the File Dialog
+API multiple times, therefore this functionality will be unavaliable in this case.
+Interaction with the Electron APIs is always preceded by a check whether
+the application instance is running inside Electron, therefore calls
+to methods which use Electron APIs will not cause exceptions. We can see
+such a guard for Electron presence in \Cref{dd:electronguard}.
+
+\begin{figure}[hb]
+\begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+public async Task<bool> AddSingleScript()
+$\{$
+    if (HybridSupport.IsElectronActive)
+    $\{$
+        BrowserWindow mainWindow = Electron.WindowManager
+            .BrowserWindows.First();
+        OpenDialogOptions options = new OpenDialogOptions
+        $\{$
+            Properties = new OpenDialogProperty[] $\{$
+                    openDialogProperty
+                $\}$
+        $\}$;
+
+        string[] files = await Electron.Dialog.ShowOpenDialogAsync(
+            mainWindow, options);
+    $\}$
+
+    return false;
+$\}$
+\end{code}
+\caption{Electron API call guarded by check for Electron presence.}\label{dd:electronguard}
+\end{figure}
+
+The source code for the Angular application is written in TypeScript, CSS and HTML.
+The HTML used is not pure HTML, rather the HTML files are Angular templates.
+Angular Templates are a way to insert data into markup seamlessly.
+The TypeScript files are transpiled to JavaScript at build-time.
+
+The most important building blocks of Angular are \emph{Components}.
+Components control the view presented to the user, and they prepare
+data for presentation by the view. We can see the source code for a component
+in \Cref{dd:componentcode}
+
+\begin{figure}[ht]
+\begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+@Component($\{$
+    selector: 'app-discard',
+    templateUrl: './discard.component.html',
+    styleUrls: ['./discard.component.css']
+$\}$)
+export class DiscardComponent implements OnInit $\{$
+
+    @Input() gameState: GameState;
+    @Output() onPick = new EventEmitter<number>();
+
+    constructor() $\{$ $\}$
+
+    ngOnInit() $\{$
+    $\}$
+
+    getModules(): Module[] $\{$
+        // Find the appropriate modules in the temp discard storage
+        return this.gameState.actions.map(
+            x => this.gameState.boardState.discardTempStorage
+                .find(y => y.name === x.module));
+    $\}$
+
+    keep(module: Module) $\{$
+        this.onPick.next(this.gameState.actions.findIndex(
+            x => x.module == module.name));
+    $\}$
+
+$\}$
+\end{code}
+\caption{An Angular component.}\label{dd:componentcode}
+\end{figure}
+
+We can see a few important component features in \Cref{dd:componentcode}:
+\begin{itemize}
+    \item The definition of the component's template and styles
+        in the \texttt{@Component} decorator. Notably, the styles
+        specified in this scope only apply to this component's
+        template.
+    \item The component has an \texttt{@Input()} and an \texttt{@Output()}.
+        These are the ways other components interact with this one.
+        Keeping component interaction to only inputs and outputs makes
+        components pure, meaning they will output the same data
+        when provided with the same inputs. In a complex application,
+        this is a very desirable property, since it makes debugging
+        easier and bugs more rare.
+    \item The component defines a selector --- \texttt{app-discard}.
+        Using this selector, other components can include this one in
+        their templates.
+\end{itemize}
+
+We can see an example of the aforementioned component being used in \Cref{dd:componentref}.
+The excerpt is from \texttt{GameComponent}'s template, and it demonstrates how
+it binds one of its own fields as an input for the \texttt{DiscardComponent},
+and that it is listening for events emitted by it.
+
+\begin{figure}[ht]
+\begin{code}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+<div *ngIf="isWaitingForHumanPlayer && isDiscardPhase()">
+    <app-discard [gameState]="gameState"
+                 (onPick)="onHumanPlayerAction(\$event)">
+    </app-discard>
+</div>
+\end{code}
+\caption{Usage of Angular component in another component's template.}\label{dd:componentref}
+\end{figure}
+
+These features are the core of how the UI application is built --- it is based on
+a~divide-and-conquer principle, where the entire view is composed of smaller components,
+which are in turn composed of even smaller components. 
+
+\clearpage
 \subsection{Experiments}
 \label{chap:experimentdocs}
 
