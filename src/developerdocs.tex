@@ -119,6 +119,7 @@ The game engine provides an extension method \texttt{AddColonizersGame}
 for easy registration of all its components into DI.
 
 \subsubsection{Game Engine Library}
+\label{subsub:gelibrary}
 
 All game logic is implemented in the \texttt{Game} C\# library. This
 makes game logic a reusable unit, which was useful during the implementation of
@@ -415,7 +416,57 @@ and API calls away from components. Therefore, all code pertaining to
 communication with the ASP.NET Core Web API is contained within
 the two service classes --- \texttt{GameService} and \texttt{ScriptsService}.
 
-\clearpage
+\subsection{AI framework}
+
+In the previous subsection, we have already discussed the communication between
+game engine and the AI from the game engine's point of view. In this subsection,
+we will examine the other side. The API provided to AIs is contained
+within the \texttt{AICore.py} source file, in the abstract class \texttt{AIBase}.
+This class is meant to be a base class for all AI implementations
+added to the game. It provides the AIs with the following functionality:
+\begin{itemize}
+    \item Communication with the game engine. The AIs do not need to
+        manually read from and write to pipes, this is handled by base
+        class methods. Whenever the game engine requests an action from the
+        AI, the base class will read this message from the named pipe, and invoke
+        the AI code to get a response. It then writes this response back to the
+        named pipe.
+    \item Other communication with the game engine --- determinization
+        and simulation. Determinization, provided a game state with hidden
+        information, will produce a game state with perfect information. This
+        is done by the game engine using information set data it tracks
+        internally. This is used in algorithms like ISMCTS or our adapted
+        version of MaxN, both of which we examined in the experimental
+        part of this thesis.
+    \item The \texttt{AICore.py} source file also contains various
+        utility functions for working with game state.
+        Game state is provided to AIs as a dictionary which
+        copies the structure of the \texttt{GameState}
+        object we discussed in \Cref{subsub:gelibrary}.
+        Among these functions are utilities like counting
+        modules in a player's colony on a per-color basis.
+\end{itemize}
+
+Since the game engine executes the AIs by running them from the command line
+with a Python interpreter, it is crucial that the \texttt{AICore.py}
+file be accessible to them. To this end, whenever an AI is added to the game,
+it is copied into a folder in the game files containing the \texttt{AICore.py}
+file. With folder-based AIs the situation is a little more tricky, since
+importing files higher in a folder hierarchy is not straightforward in Python.
+Therefore, when copying in folder-based AIs, a copy of \texttt{AICore.py}
+is copied along with the new files into the new folder. This way, the AI
+has access to this file at runtime.
+
+Observe that during application build or publish, the AIs which ship with
+the game are copied into the publish folder. This is accomplished through
+the .csproj files for the \texttt{Desktop} and \texttt{Experiments} projects.
+
+While creating AIs for the game, debugging the AI is relatively straightforward.
+Simply set a breakpoint at the game engine location where the AI is being
+run with the Python interpreter, then skip the line creating the actual process
+and instead run your own process in debug mode in your development environment
+of choice.
+
 \subsection{Experiments}
 \label{chap:experimentdocs}
 
